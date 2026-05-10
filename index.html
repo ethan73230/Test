@@ -36,23 +36,6 @@
       overflow-x: hidden;
     }
 
-    /* ─── SKIP LINK ───────────────────────────────────── */
-    .skip-link {
-      position: absolute;
-      top: -100%;
-      left: 16px;
-      background: var(--green);
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 0 0 8px 8px;
-      font-weight: 600;
-      font-size: 14px;
-      text-decoration: none;
-      z-index: 9999;
-      transition: top .2s;
-    }
-    .skip-link:focus { top: 0; }
-
     /* ─── NAV ─────────────────────────────────────────── */
     nav {
       position: fixed;
@@ -65,9 +48,8 @@
       transition: background .4s, backdrop-filter .4s, padding .3s;
     }
     nav.scrolled {
-      background: rgba(12,15,10,.9);
+      background: rgba(12,15,10,.85);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       padding: 14px 40px;
       border-bottom: 1px solid var(--border);
     }
@@ -85,7 +67,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 3px;
       padding: 6px;
-      flex-shrink: 0;
     }
     .logo-icon span {
       background: var(--dark);
@@ -98,109 +79,27 @@
       color: var(--text);
     }
     .logo-text em { color: var(--amber-light); font-style: normal; }
-
-    .nav-links {
+    nav ul {
       list-style: none;
       display: flex;
       gap: 8px;
     }
-    .nav-links a {
+    nav ul a {
       text-decoration: none;
       color: var(--text-muted);
       font-size: 14px;
       font-weight: 500;
-      padding: 10px 14px;
+      padding: 8px 14px;
       border-radius: 8px;
       transition: color .2s, background .2s;
-      display: block;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
     }
-    .nav-links a:hover,
-    .nav-links a:focus-visible { color: var(--text); background: var(--border); outline: none; }
+    nav ul a:hover { color: var(--text); background: var(--border); }
     .nav-cta {
       background: var(--green) !important;
       color: var(--text) !important;
-      padding: 10px 20px !important;
+      padding: 8px 20px !important;
     }
-    .nav-cta:hover,
-    .nav-cta:focus-visible { background: var(--green-light) !important; }
-
-    /* Hamburger */
-    .nav-hamburger {
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-      width: 44px; height: 44px;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 10px;
-      transition: border-color .2s, background .2s;
-    }
-    .nav-hamburger:hover,
-    .nav-hamburger:focus-visible {
-      border-color: rgba(82,183,136,.4);
-      background: rgba(255,255,255,.05);
-      outline: none;
-    }
-    .nav-hamburger span {
-      display: block;
-      height: 2px;
-      background: var(--text);
-      border-radius: 1px;
-      transition: transform .3s, opacity .3s;
-    }
-    .nav-hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .nav-hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    .nav-hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-    /* Mobile drawer */
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 99;
-      background: rgba(12,15,10,.97);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
-    }
-    .mobile-menu.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .mobile-menu a {
-      text-decoration: none;
-      color: var(--text-muted);
-      font-size: 22px;
-      font-weight: 600;
-      padding: 14px 32px;
-      border-radius: 12px;
-      transition: color .2s, background .2s;
-      min-height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 260px;
-    }
-    .mobile-menu a:hover,
-    .mobile-menu a:focus-visible { color: var(--text); background: rgba(255,255,255,.06); outline: none; }
-    .mobile-menu .mobile-cta {
-      background: var(--green);
-      color: var(--text) !important;
-      margin-top: 8px;
-    }
-    .mobile-menu .mobile-cta:hover { background: var(--green-light); }
+    .nav-cta:hover { background: var(--green-light) !important; }
 
     /* ─── HERO ────────────────────────────────────────── */
     .hero {
@@ -220,7 +119,6 @@
       background:
         radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,106,79,.35) 0%, transparent 70%),
         radial-gradient(ellipse 50% 40% at 80% 80%, rgba(199,123,46,.15) 0%, transparent 60%);
-      pointer-events: none;
     }
     .hero-grid {
       position: absolute;
@@ -230,7 +128,6 @@
         linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
       background-size: 60px 60px;
       mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black 30%, transparent 80%);
-      pointer-events: none;
     }
     .hero-badge {
       display: inline-flex;
@@ -246,11 +143,11 @@
       margin-bottom: 32px;
       position: relative;
     }
-    .hero-badge-dot {
+    .hero-badge::before {
+      content: '';
       width: 6px; height: 6px;
       background: var(--green-xlight);
       border-radius: 50%;
-      flex-shrink: 0;
       animation: pulse 2s ease-in-out infinite;
     }
     @keyframes pulse {
@@ -299,11 +196,6 @@
       text-decoration: none;
       transition: all .25s;
       border: none;
-      min-height: 48px;
-    }
-    .btn:focus-visible {
-      outline: 2px solid var(--green-xlight);
-      outline-offset: 2px;
     }
     .btn-primary {
       background: linear-gradient(135deg, var(--green), var(--green-light));
@@ -331,7 +223,9 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    .hero-stat { text-align: center; }
+    .hero-stat {
+      text-align: center;
+    }
     .hero-stat-num {
       font-size: 36px;
       font-weight: 800;
@@ -422,7 +316,6 @@
       background: linear-gradient(135deg, var(--green) 0%, transparent 60%);
       opacity: 0;
       transition: opacity .3s;
-      pointer-events: none;
     }
     .product-card:hover {
       transform: translateY(-6px);
@@ -441,13 +334,13 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 24px;
+      font-size: 26px;
       position: relative;
     }
-    .product-icon svg { width: 26px; height: 26px; }
-    .product-icon.green { background: rgba(45,106,79,.25); color: var(--green-xlight); }
-    .product-icon.amber { background: rgba(199,123,46,.25); color: var(--amber-light); }
-    .product-icon.blue { background: rgba(59,130,246,.15); color: #93C5FD; }
-    .product-icon.purple { background: rgba(139,92,246,.15); color: #C4B5FD; }
+    .product-icon.green { background: rgba(45,106,79,.25); }
+    .product-icon.amber { background: rgba(199,123,46,.25); }
+    .product-icon.blue { background: rgba(59,130,246,.15); }
+    .product-icon.purple { background: rgba(139,92,246,.15); }
     .product-tag {
       display: inline-block;
       padding: 3px 10px;
@@ -488,7 +381,10 @@
     .product-spec span:last-child { font-weight: 600; color: var(--green-xlight); }
 
     /* ─── PERFORMANCE ─────────────────────────────────── */
-    #performance { position: relative; overflow: hidden; }
+    #performance {
+      position: relative;
+      overflow: hidden;
+    }
     #performance::before {
       content: '';
       position: absolute;
@@ -539,8 +435,16 @@
       margin-top: 6px;
       line-height: 1.4;
     }
-    .perf-list { display: flex; flex-direction: column; gap: 24px; }
-    .perf-item { display: flex; gap: 20px; align-items: flex-start; }
+    .perf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .perf-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
     .perf-item-icon {
       width: 44px; height: 44px;
       border-radius: 10px;
@@ -548,10 +452,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 20px;
       flex-shrink: 0;
-      color: var(--green-xlight);
     }
-    .perf-item-icon svg { width: 22px; height: 22px; }
     .perf-item-text h4 {
       font-size: 16px;
       font-weight: 600;
@@ -562,7 +465,9 @@
       color: var(--text-muted);
       line-height: 1.6;
     }
-    .progress-bar-wrap { margin-top: 10px; }
+    .progress-bar-wrap {
+      margin-top: 10px;
+    }
     .progress-bar-track {
       height: 6px;
       background: var(--border);
@@ -634,8 +539,16 @@
       color: #fff;
       transform: scale(1.1);
     }
-    .process-step h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
-    .process-step p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+    .process-step h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .process-step p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
 
     /* ─── AVANTAGES ───────────────────────────────────── */
     #avantages { position: relative; }
@@ -656,22 +569,22 @@
       transform: translateY(-4px);
       border-color: rgba(199,123,46,.3);
     }
-    .adv-icon {
-      width: 52px; height: 52px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .adv-emoji {
+      font-size: 36px;
       margin-bottom: 20px;
-      color: var(--green-xlight);
+      display: block;
     }
-    .adv-icon svg { width: 28px; height: 28px; }
-    .adv-icon.green { background: rgba(45,106,79,.2); }
-    .adv-icon.amber { background: rgba(199,123,46,.15); color: var(--amber-light); }
-    .adv-icon.blue  { background: rgba(59,130,246,.12); color: #93C5FD; }
-    .adv-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-    .adv-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
-    .adv-detail {
+    .adv-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .adv-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .adv-card .adv-detail {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -695,16 +608,7 @@
       border-radius: var(--radius);
       padding: 32px;
     }
-    .testi-stars {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 16px;
-    }
-    .testi-stars svg {
-      width: 16px; height: 16px;
-      color: var(--amber-light);
-      fill: currentColor;
-    }
+    .testi-stars { color: var(--amber-light); font-size: 16px; margin-bottom: 16px; }
     .testi-text {
       font-size: 15px;
       line-height: 1.7;
@@ -713,7 +617,11 @@
       font-style: italic;
     }
     .testi-text::before { content: '"'; color: var(--green-xlight); font-size: 24px; font-style: normal; }
-    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
     .testi-avatar {
       width: 44px; height: 44px;
       border-radius: 50%;
@@ -723,8 +631,6 @@
       justify-content: center;
       font-weight: 700;
       font-size: 16px;
-      flex-shrink: 0;
-      aria-hidden: true;
     }
     .testi-name { font-weight: 600; font-size: 14px; }
     .testi-role { font-size: 12px; color: var(--text-muted); }
@@ -740,7 +646,6 @@
       position: absolute;
       inset: 0;
       background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(45,106,79,.2) 0%, transparent 70%);
-      pointer-events: none;
     }
     .cta-box {
       background: var(--card-bg);
@@ -803,11 +708,8 @@
       color: var(--text-muted);
       font-size: 14px;
       transition: color .2s;
-      padding: 4px 0;
-      display: inline-block;
     }
-    .footer-col ul a:hover,
-    .footer-col ul a:focus-visible { color: var(--text); outline: none; }
+    .footer-col ul a:hover { color: var(--text); }
     .footer-bottom {
       max-width: 1200px;
       margin: 0 auto;
@@ -848,28 +750,10 @@
     .reveal-delay-3 { transition-delay: .3s; }
     .reveal-delay-4 { transition-delay: .4s; }
 
-    /* ─── REDUCED MOTION ──────────────────────────────── */
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after {
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .01ms !important;
-      }
-      .reveal {
-        opacity: 1;
-        transform: none;
-        transition: none;
-      }
-    }
-
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 900px) {
       nav { padding: 16px 20px; }
-      nav.scrolled { padding: 12px 20px; }
-      .nav-links { display: none; }
-      .nav-hamburger { display: flex; }
-      .mobile-menu { display: flex; }
+      nav ul { display: none; }
       section { padding: 80px 20px; }
       .perf-layout { grid-template-columns: 1fr; gap: 40px; }
       .process-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
@@ -888,59 +772,35 @@
       .process-steps { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr; }
       h2 { font-size: 32px; }
-      .hero { padding: 100px 20px 60px; }
-      .hero-actions { flex-direction: column; align-items: center; }
-      .hero-actions .btn { width: 100%; max-width: 320px; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <a href="#main-content" class="skip-link">Aller au contenu principal</a>
-
-  <!-- Mobile drawer menu -->
-  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Menu de navigation" aria-modal="true">
-    <a href="#produits" class="mobile-link">Produits</a>
-    <a href="#performance" class="mobile-link">Performance</a>
-    <a href="#processus" class="mobile-link">Processus</a>
-    <a href="#avantages" class="mobile-link">Avantages</a>
-    <a href="#contact" class="mobile-link mobile-cta">Contacter</a>
-  </div>
-
   <!-- ─── NAV ──────────────────────────────────────────── -->
-  <nav id="nav" aria-label="Navigation principale">
-    <a href="#" class="logo" aria-label="Blokiwood — accueil">
-      <div class="logo-icon" aria-hidden="true">
+  <nav id="nav">
+    <a href="#" class="logo">
+      <div class="logo-icon">
         <span></span><span></span>
         <span></span><span></span>
       </div>
       <span class="logo-text">Bloki<em>wood</em></span>
     </a>
-    <ul class="nav-links" role="list">
+    <ul>
       <li><a href="#produits">Produits</a></li>
       <li><a href="#performance">Performance</a></li>
       <li><a href="#processus">Processus</a></li>
       <li><a href="#avantages">Avantages</a></li>
       <li><a href="#contact" class="nav-cta">Contacter</a></li>
     </ul>
-    <button class="nav-hamburger" id="hamburger" aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
   </nav>
 
-  <main id="main-content">
-
   <!-- ─── HERO ─────────────────────────────────────────── -->
-  <section class="hero" aria-label="Introduction">
-    <div class="hero-bg" aria-hidden="true"></div>
-    <div class="hero-grid" aria-hidden="true"></div>
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
 
-    <div class="hero-badge" aria-label="Fabriqué en France, Savoie">
-      <span class="hero-badge-dot" aria-hidden="true"></span>
-      100% Made in France · Savoie
-    </div>
+    <div class="hero-badge">100% Made in France · Savoie</div>
 
     <h1>
       Construisez<br />
@@ -954,32 +814,32 @@
 
     <div class="hero-actions">
       <a href="#produits" class="btn btn-primary">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14l1 9H4L5 3z"/><path d="M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM16 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14l1 9H4L5 3z"/><path d="M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM16 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
         Découvrir nos produits
       </a>
       <a href="#contact" class="btn btn-ghost">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1H6.6a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6.29 6.29l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1H6.6a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6.29 6.29l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Parler à un expert
       </a>
     </div>
 
-    <div class="hero-stats" role="list" aria-label="Chiffres clés">
-      <div class="hero-stat" role="listitem">
+    <div class="hero-stats">
+      <div class="hero-stat">
         <div class="hero-stat-num">R 5,26</div>
         <div class="hero-stat-label">m²·K/W isolation</div>
       </div>
-      <div class="hero-divider" aria-hidden="true"></div>
-      <div class="hero-stat" role="listitem">
+      <div class="hero-divider"></div>
+      <div class="hero-stat">
         <div class="hero-stat-num">2 j</div>
         <div class="hero-stat-label">pour 100 m² de murs</div>
       </div>
-      <div class="hero-divider" aria-hidden="true"></div>
-      <div class="hero-stat" role="listitem">
+      <div class="hero-divider"></div>
+      <div class="hero-stat">
         <div class="hero-stat-num">9 T</div>
         <div class="hero-stat-label">charge par mètre linéaire</div>
       </div>
-      <div class="hero-divider" aria-hidden="true"></div>
-      <div class="hero-stat" role="listitem">
+      <div class="hero-divider"></div>
+      <div class="hero-stat">
         <div class="hero-stat-num">R+2</div>
         <div class="hero-stat-label">hauteur constructible</div>
       </div>
@@ -998,11 +858,8 @@
       </div>
 
       <div class="products-grid">
-        <article class="product-card featured reveal reveal-delay-1">
-          <div class="product-icon green" aria-hidden="true">
-            <!-- Brick wall icon -->
-            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="4" width="10" height="5" rx="1"/><rect x="13" y="4" width="10" height="5" rx="1"/><rect x="1" y="11" width="6" height="5" rx="1"/><rect x="9" y="11" width="6" height="5" rx="1"/><rect x="17" y="11" width="6" height="5" rx="1"/><rect x="1" y="18" width="10" height="5" rx="1"/><rect x="13" y="18" width="10" height="5" rx="1"/></svg>
-          </div>
+        <div class="product-card featured reveal reveal-delay-1">
+          <div class="product-icon green">🧱</div>
           <span class="product-tag pop">Best-seller</span>
           <h3>Mur porteur isolé</h3>
           <p>Bloc autoportant intégrant l'ossature, l'isolation en fibre de bois et l'étanchéité à l'air. Pose sans membrane supplémentaire.</p>
@@ -1012,13 +869,10 @@
             <div class="product-spec"><span>Poids</span><span>~60 kg</span></div>
             <div class="product-spec"><span>Résistance</span><span>R = 5,26</span></div>
           </div>
-        </article>
+        </div>
 
-        <article class="product-card reveal reveal-delay-2">
-          <div class="product-icon amber" aria-hidden="true">
-            <!-- Floor layers icon -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="4" rx="1"/><rect x="2" y="11" width="20" height="4" rx="1"/><rect x="2" y="17" width="20" height="4" rx="1"/></svg>
-          </div>
+        <div class="product-card reveal reveal-delay-2">
+          <div class="product-icon amber">🏠</div>
           <span class="product-tag new">Nouveau</span>
           <h3>Dalle plancher</h3>
           <p>Dalle préfabriquée biosourcée avec intégration possible des réseaux de chauffage au sol. Pose rapide et isolante.</p>
@@ -1026,33 +880,27 @@
             <div class="product-spec"><span>Isolation</span><span>Fibre de bois</span></div>
             <div class="product-spec"><span>Certification</span><span>PEFC/FSC</span></div>
           </div>
-        </article>
+        </div>
 
-        <article class="product-card reveal reveal-delay-3">
-          <div class="product-icon blue" aria-hidden="true">
-            <!-- Window/lintel icon -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M12 9v12"/></svg>
-          </div>
+        <div class="product-card reveal reveal-delay-3">
+          <div class="product-icon blue">🔲</div>
           <h3>Linteau & Appui</h3>
           <p>Éléments de renforts pour baies, fenêtres et portes. Parfaitement intégrés au système Blokiwood pour une cohérence thermique totale.</p>
           <div class="product-specs">
             <div class="product-spec"><span>Largeurs</span><span>30–60 cm</span></div>
             <div class="product-spec"><span>Pont thermique</span><span>Éliminé</span></div>
           </div>
-        </article>
+        </div>
 
-        <article class="product-card reveal reveal-delay-4">
-          <div class="product-icon purple" aria-hidden="true">
-            <!-- Roof/triangle icon -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13L12 3l9 10"/><path d="M5 11v8a1 1 0 001 1h12a1 1 0 001-1v-8"/></svg>
-          </div>
+        <div class="product-card reveal reveal-delay-4">
+          <div class="product-icon purple">🏔️</div>
           <h3>Éléments de toiture</h3>
           <p>Blocs de ferme et éléments toiture s'emboîtant directement avec les murs Blokiwood. Construction jusqu'à R+2 sans compromis.</p>
           <div class="product-specs">
             <div class="product-spec"><span>Hauteur</span><span>Jusqu'à R+2</span></div>
             <div class="product-spec"><span>Charge</span><span>9 T/m linéaire</span></div>
           </div>
-        </article>
+        </div>
       </div>
     </div>
   </section>
@@ -1068,27 +916,21 @@
 
           <div class="perf-list">
             <div class="perf-item">
-              <div class="perf-item-icon" aria-hidden="true">
-                <!-- Thermometer -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 14.76V4a2 2 0 00-4 0v10.76A6 6 0 1014 14.76z"/><circle cx="12" cy="18" r="3" fill="currentColor" stroke="none"/></svg>
-              </div>
+              <div class="perf-item-icon">🌡️</div>
               <div class="perf-item-text">
                 <h4>Isolation thermique supérieure</h4>
                 <p>Déphasage été-hiver de 8h50 grâce à la fibre de bois haute densité insufflée dans les caissons.</p>
-                <div class="progress-bar-wrap" role="img" aria-label="Résistance thermique R = 5,26 m²·K/W, 88% de la valeur maximale">
+                <div class="progress-bar-wrap">
                   <div class="progress-bar-track">
                     <div class="progress-bar-fill" style="width: 88%"></div>
                   </div>
-                  <div class="progress-labels" aria-hidden="true"><span>0</span><span>R = 5,26 m²·K/W</span></div>
+                  <div class="progress-labels"><span>0</span><span>R = 5,26 m²·K/W</span></div>
                 </div>
               </div>
             </div>
 
             <div class="perf-item">
-              <div class="perf-item-icon" aria-hidden="true">
-                <!-- Wind/air icon -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/></svg>
-              </div>
+              <div class="perf-item-icon">💨</div>
               <div class="perf-item-text">
                 <h4>Étanchéité à l'air native</h4>
                 <p>Aucune membrane supplémentaire requise. Le mur est étanche à l'air tout en restant ouvert à la vapeur d'eau.</p>
@@ -1096,10 +938,7 @@
             </div>
 
             <div class="perf-item">
-              <div class="perf-item-icon" aria-hidden="true">
-                <!-- Leaf/eco icon -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 22c0-8 4-14 10-16 0 6-2 10-6 12"/><path d="M22 2C13 4 10 10 11 22"/></svg>
-              </div>
+              <div class="perf-item-icon">🌿</div>
               <div class="perf-item-text">
                 <h4>Perspirant & biosourcé</h4>
                 <p>Les murs absorbent et évacuent naturellement la vapeur d'eau — régulation hygrométrique passive sans équipement.</p>
@@ -1108,28 +947,28 @@
           </div>
         </div>
 
-        <dl class="perf-metrics reveal reveal-delay-2" aria-label="Métriques de performance">
+        <div class="perf-metrics reveal reveal-delay-2">
           <div class="metric-card">
-            <dt class="metric-label">Résistance thermique — dépasse la RE 2020</dt>
-            <dd class="metric-num">5,26 <span class="metric-unit">m²·K/W</span></dd>
+            <div class="metric-num">5,26 <span class="metric-unit">m²·K/W</span></div>
+            <div class="metric-label">Résistance thermique — dépasse la RE 2020</div>
           </div>
           <div class="metric-card">
-            <dt class="metric-label">Déphasage thermique été-hiver</dt>
-            <dd class="metric-num">8h50</dd>
+            <div class="metric-num">8h50</div>
+            <div class="metric-label">Déphasage thermique été-hiver</div>
           </div>
           <div class="metric-card">
-            <dt class="metric-label">Charge portante par mètre linéaire</dt>
-            <dd class="metric-num">9 T</dd>
+            <div class="metric-num">9 T</div>
+            <div class="metric-label">Charge portante par mètre linéaire</div>
           </div>
           <div class="metric-card">
-            <dt class="metric-label">Poids d'un bloc mur complet</dt>
-            <dd class="metric-num">60 kg</dd>
+            <div class="metric-num">60 kg</div>
+            <div class="metric-label">Poids d'un bloc mur complet</div>
           </div>
           <div class="metric-card span2">
-            <dt class="metric-label">Pour monter 100 m² de murs avec 3 personnes — 3× plus rapide que le béton</dt>
-            <dd class="metric-num">2 jours</dd>
+            <div class="metric-num">2 jours</div>
+            <div class="metric-label">Pour monter 100 m² de murs avec 3 personnes — 3× plus rapide que le béton</div>
           </div>
-        </dl>
+        </div>
       </div>
     </div>
   </section>
@@ -1143,28 +982,28 @@
         <p class="section-desc" style="margin:0 auto">Un processus fluide, industrialisé et suivi pour garantir la qualité à chaque étape de votre projet.</p>
       </div>
 
-      <ol class="process-steps" aria-label="Étapes du processus">
-        <li class="process-step reveal reveal-delay-1">
-          <div class="step-num" aria-hidden="true">1</div>
+      <div class="process-steps">
+        <div class="process-step reveal reveal-delay-1">
+          <div class="step-num">1</div>
           <h3>Étude & Conception</h3>
           <p>Analyse de votre projet, plans sur mesure et optimisation du système Blokiwood selon vos contraintes architecturales.</p>
-        </li>
-        <li class="process-step reveal reveal-delay-2">
-          <div class="step-num" aria-hidden="true">2</div>
+        </div>
+        <div class="process-step reveal reveal-delay-2">
+          <div class="step-num">2</div>
           <h3>Fabrication Usine</h3>
           <p>Préfabrication industrielle en Savoie avec contrôle qualité systématique. Bois certifié PEFC/FSC, Made in France.</p>
-        </li>
-        <li class="process-step reveal reveal-delay-3">
-          <div class="step-num" aria-hidden="true">3</div>
+        </div>
+        <div class="process-step reveal reveal-delay-3">
+          <div class="step-num">3</div>
           <h3>Livraison Chantier</h3>
           <p>Livraison just-in-time sur votre chantier, dans l'ordre de pose. Blocs numérotés et plan d'assemblage fourni.</p>
-        </li>
-        <li class="process-step reveal reveal-delay-4">
-          <div class="step-num" aria-hidden="true">4</div>
+        </div>
+        <div class="process-step reveal reveal-delay-4">
+          <div class="step-num">4</div>
           <h3>Pose & Finitions</h3>
           <p>100 m² montés en 2 jours avec 3 personnes. Formation incluse pour vos équipes. Support technique disponible.</p>
-        </li>
-      </ol>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1177,83 +1016,65 @@
       </div>
 
       <div class="adv-grid">
-        <article class="adv-card reveal reveal-delay-1">
-          <div class="adv-icon green" aria-hidden="true">
-            <!-- Tree -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12m0 0l-4 4m4-4l4 4"/><path d="M5 15h14l-7-8-7 8z" opacity=".7"/><path d="M3 11h18l-9-10-9 10z" opacity=".4"/></svg>
-          </div>
+        <div class="adv-card reveal reveal-delay-1">
+          <span class="adv-emoji">🌲</span>
           <h3>100% biosourcé</h3>
           <p>Bois certifié PEFC/FSC issu de forêts gérées durablement. Isolation en fibre de bois naturelle. Bilan carbone négatif sur le cycle de vie.</p>
           <div class="adv-detail">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg>
             Empreinte carbone négative
           </div>
-        </article>
+        </div>
 
-        <article class="adv-card reveal reveal-delay-2">
-          <div class="adv-icon amber" aria-hidden="true">
-            <!-- Lightning bolt -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l9.5-11.5H14L13 2z"/></svg>
-          </div>
+        <div class="adv-card reveal reveal-delay-2">
+          <span class="adv-emoji">⚡</span>
           <h3>Pose ultra-rapide</h3>
           <p>3 personnes, 2 jours, 100 m² de murs. Le système emboîtable Blokiwood réduit drastiquement le temps de chantier et les coûts de main-d'œuvre.</p>
           <div class="adv-detail">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg>
             3× plus rapide que le béton
           </div>
-        </article>
+        </div>
 
-        <article class="adv-card reveal reveal-delay-3">
-          <div class="adv-icon green" aria-hidden="true">
-            <!-- Factory -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21V9l5-3v3l5-3v3l5-3v15H2z"/><rect x="6" y="14" width="3" height="7"/><rect x="11" y="14" width="3" height="7"/><path d="M17 5V2"/></svg>
-          </div>
+        <div class="adv-card reveal reveal-delay-3">
+          <span class="adv-emoji">🏭</span>
           <h3>Made in France</h3>
           <p>Fabrication intégralement réalisée dans notre usine en Savoie (73). Qualité constante, traçabilité totale, et circuit court pour nos clients.</p>
           <div class="adv-detail">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg>
             Fabriqué en Savoie
           </div>
-        </article>
+        </div>
 
-        <article class="adv-card reveal reveal-delay-1">
-          <div class="adv-icon blue" aria-hidden="true">
-            <!-- Sun/comfort -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          </div>
+        <div class="adv-card reveal reveal-delay-1">
+          <span class="adv-emoji">🌡️</span>
           <h3>Confort toute l'année</h3>
           <p>Le déphasage de 8h50 protège des surchauffes estivales sans climatisation. En hiver, la chaleur est maintenue sans énergie fossile excessive.</p>
           <div class="adv-detail">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg>
             Conforme RE 2020
           </div>
-        </article>
+        </div>
 
-        <article class="adv-card reveal reveal-delay-2">
-          <div class="adv-icon green" aria-hidden="true">
-            <!-- Wrench/tool -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-          </div>
+        <div class="adv-card reveal reveal-delay-2">
+          <span class="adv-emoji">🔧</span>
           <h3>Système tout-en-un</h3>
           <p>30 éléments couvrant murs, dalles, linteaux, appuis et toitures. Un seul fournisseur, un seul interlocuteur pour toute la structure.</p>
           <div class="adv-detail">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg>
             30 éléments compatibles
           </div>
-        </article>
+        </div>
 
-        <article class="adv-card reveal reveal-delay-3">
-          <div class="adv-icon blue" aria-hidden="true">
-            <!-- Water drop -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-          </div>
+        <div class="adv-card reveal reveal-delay-3">
+          <span class="adv-emoji">💧</span>
           <h3>Étanche & perspirant</h3>
           <p>Étanchéité à l'air sans membrane. Ouvert à la vapeur d'eau pour une régulation hygrométrique naturelle et un air intérieur sain.</p>
           <div class="adv-detail">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg>
             0 membrane requise
           </div>
-        </article>
+        </div>
       </div>
     </div>
   </section>
@@ -1268,59 +1089,41 @@
       </div>
 
       <div class="testi-grid">
-        <article class="testi-card reveal reveal-delay-1">
-          <div class="testi-stars" role="img" aria-label="5 étoiles sur 5">
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </div>
+        <div class="testi-card reveal reveal-delay-1">
+          <div class="testi-stars">★★★★★</div>
           <p class="testi-text">Avec Blokiwood, j'ai monté les murs d'une maison de 120 m² en moins de 3 jours avec mon équipe de 3 gars. Jamais vu une vitesse de chantier pareille en bois.</p>
           <div class="testi-author">
-            <div class="testi-avatar" aria-hidden="true">JL</div>
+            <div class="testi-avatar">JL</div>
             <div>
               <div class="testi-name">Jean-Luc Ferretti</div>
               <div class="testi-role">Charpentier — Isère (38)</div>
             </div>
           </div>
-        </article>
+        </div>
 
-        <article class="testi-card reveal reveal-delay-2">
-          <div class="testi-stars" role="img" aria-label="5 étoiles sur 5">
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </div>
+        <div class="testi-card reveal reveal-delay-2">
+          <div class="testi-stars">★★★★★</div>
           <p class="testi-text">La performance thermique est bluffante. Notre maison passive atteint les objectifs sans climatisation. Et le confort d'été est vraiment remarquable.</p>
           <div class="testi-author">
-            <div class="testi-avatar" aria-hidden="true">ML</div>
+            <div class="testi-avatar">ML</div>
             <div>
               <div class="testi-name">Marie & Laurent Dubois</div>
               <div class="testi-role">Maîtres d'ouvrage — Haute-Savoie</div>
             </div>
           </div>
-        </article>
+        </div>
 
-        <article class="testi-card reveal reveal-delay-3">
-          <div class="testi-stars" role="img" aria-label="5 étoiles sur 5">
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </div>
+        <div class="testi-card reveal reveal-delay-3">
+          <div class="testi-stars">★★★★★</div>
           <p class="testi-text">Depuis que j'ai découvert Blokiwood, je ne reviendrai plus à l'ossature bois traditionnelle. Le système est bluffant de précision et de simplicité.</p>
           <div class="testi-author">
-            <div class="testi-avatar" aria-hidden="true">PD</div>
+            <div class="testi-avatar">PD</div>
             <div>
               <div class="testi-name">Pierre Deschamps</div>
               <div class="testi-role">Constructeur de maisons bois — Ain</div>
             </div>
           </div>
-        </article>
+        </div>
       </div>
     </div>
   </section>
@@ -1334,11 +1137,11 @@
         <p>Que vous soyez constructeur, artisan ou particulier, notre équipe vous accompagne de la conception à la livraison de vos blocs Blokiwood.</p>
         <div class="cta-buttons">
           <a href="mailto:contact@blokiwood.fr" class="btn btn-primary">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             Demander un devis
           </a>
           <a href="tel:+33479000000" class="btn btn-ghost">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1H6.6a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6.29 6.29l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1H6.6a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6.29 6.29l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             Appeler un expert
           </a>
         </div>
@@ -1346,14 +1149,12 @@
     </div>
   </section>
 
-  </main>
-
   <!-- ─── FOOTER ────────────────────────────────────────── -->
   <footer>
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="#" class="logo" aria-label="Blokiwood — retour en haut">
-          <div class="logo-icon" aria-hidden="true">
+        <a href="#" class="logo">
+          <div class="logo-icon">
             <span></span><span></span>
             <span></span><span></span>
           </div>
@@ -1397,50 +1198,19 @@
 
     <div class="footer-bottom">
       <span>© 2025 Blokiwood SAS — Tous droits réservés</span>
-      <div class="footer-badge" aria-label="Certifications">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-        Made in Savoie, France
+      <div class="footer-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        Made in Savoie, France 🇫🇷
       </div>
       <span>PEFC · FSC · RE 2020</span>
     </div>
   </footer>
 
   <script>
-    // Nav scroll state
+    // Nav scroll
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 50);
-    }, { passive: true });
-
-    // Hamburger menu
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileLinks = mobileMenu.querySelectorAll('.mobile-link');
-
-    function openMenu() {
-      mobileMenu.classList.add('open');
-      hamburger.setAttribute('aria-expanded', 'true');
-      hamburger.setAttribute('aria-label', 'Fermer le menu');
-      document.body.style.overflow = 'hidden';
-      mobileLinks[0].focus();
-    }
-
-    function closeMenu() {
-      mobileMenu.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-      hamburger.setAttribute('aria-label', 'Ouvrir le menu');
-      document.body.style.overflow = '';
-      hamburger.focus();
-    }
-
-    hamburger.addEventListener('click', () => {
-      hamburger.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
-    });
-
-    mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) closeMenu();
     });
 
     // Reveal on scroll
@@ -1454,6 +1224,17 @@
       });
     }, { threshold: 0.12 });
     reveals.forEach(el => observer.observe(el));
+
+    // Counter animation for hero stats
+    function animateCounter(el, target, suffix = '') {
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = (Number.isInteger(target) ? Math.floor(current) : current.toFixed(2)) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 16);
+    }
   </script>
 </body>
 </html>

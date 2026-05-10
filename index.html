@@ -113,12 +113,21 @@
       position: relative;
       overflow: hidden;
     }
+    .hero-photo {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      opacity: .18;
+    }
     .hero-bg {
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,106,79,.35) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(199,123,46,.15) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,106,79,.4) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(199,123,46,.2) 0%, transparent 60%),
+        linear-gradient(to bottom, rgba(12,15,10,.5) 0%, rgba(12,15,10,.2) 50%, rgba(12,15,10,.7) 100%);
     }
     .hero-grid {
       position: absolute;
@@ -735,6 +744,51 @@
       color: var(--green-xlight);
     }
 
+    /* ─── GALLERY ────────────────────────────────────── */
+    #galerie { background: var(--dark-3); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 48px;
+    }
+    .gallery-item {
+      aspect-ratio: 4/3;
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      background: var(--card-bg);
+    }
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .5s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.06); }
+    .gallery-item-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 16px 14px;
+      background: linear-gradient(to top, rgba(12,15,10,.85), transparent);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .3s, transform .3s;
+    }
+    .gallery-item:hover .gallery-item-label {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (max-width: 900px) {
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .gallery-grid { grid-template-columns: 1fr; }
+    }
+
     /* ─── SCROLL ANIMATIONS ───────────────────────────── */
     .reveal {
       opacity: 0;
@@ -797,6 +851,7 @@
 
   <!-- ─── HERO ─────────────────────────────────────────── -->
   <section class="hero">
+    <div class="hero-photo"></div>
     <div class="hero-bg"></div>
     <div class="hero-grid"></div>
 
@@ -1123,6 +1178,44 @@
               <div class="testi-role">Constructeur de maisons bois — Ain</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GALERIE ─────────────────────────────────────────── -->
+  <section id="galerie">
+    <div class="container">
+      <div class="reveal" style="text-align:center">
+        <div class="section-label">Nos réalisations</div>
+        <h2>Des maisons qui<br />parlent d'elles-mêmes</h2>
+        <p class="section-desc" style="margin:0 auto">Chaque projet Blokiwood est unique — voici quelques-unes de nos réalisations en France.</p>
+      </div>
+
+      <div class="gallery-grid">
+        <div class="gallery-item reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" alt="Maison bois moderne avec jardin" loading="lazy" />
+          <div class="gallery-item-label">Maison contemporaine — Savoie</div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-2">
+          <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80" alt="Belle maison bois" loading="lazy" />
+          <div class="gallery-item-label">Villa bois — Haute-Savoie</div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-3">
+          <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80" alt="Maison bois moderne" loading="lazy" />
+          <div class="gallery-item-label">Maison passive — Isère</div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" alt="Maison contemporaine bois" loading="lazy" />
+          <div class="gallery-item-label">Maison RE2020 — Ain</div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-2">
+          <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80" alt="Maison bois lumineuse" loading="lazy" />
+          <div class="gallery-item-label">Maison biosourcée — Rhône</div>
+        </div>
+        <div class="gallery-item reveal reveal-delay-3">
+          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80" alt="Intérieur maison bois chaleureux" loading="lazy" />
+          <div class="gallery-item-label">Intérieur — Puy-de-Dôme</div>
         </div>
       </div>
     </div>

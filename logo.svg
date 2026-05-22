@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 917 1218" width="917" height="1218">
+  <g fill="none" stroke="#4a5a6a" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Cercle extérieur -->
+    <circle cx="490" cy="580" r="415" stroke-width="5"/>
+
+    <!-- "2" — quadrant supérieur gauche -->
+    <path d="
+      M 215,270
+      C 210,155 260,100 325,100
+      C 395,100 425,160 415,220
+      C 405,275 355,315 305,348
+      C 265,370 230,382 215,390
+      L 400,390
+    " stroke-width="11"/>
+    <!-- Boucle/spirale en haut du 2 -->
+    <path d="M 268,196 C 252,158 268,125 298,130 C 328,136 332,168 312,190" stroke-width="7"/>
+
+    <!-- "N" — quadrant supérieur droit (N en blocs avec diagonale) -->
+    <rect x="432" y="105" width="192" height="245" stroke-width="11"/>
+    <line x1="432" y1="105" x2="624" y2="350" stroke-width="11"/>
+
+    <!-- "L" — quadrant inférieur gauche (L encadré) -->
+    <rect x="198" y="420" width="198" height="228" stroke-width="11"/>
+    <polyline points="213,433 213,633 388,633" stroke-width="11"/>
+
+    <!-- Forme "O"/serrure — quadrant inférieur droit -->
+    <!-- Grand cercle -->
+    <circle cx="564" cy="535" r="118" stroke-width="11"/>
+    <!-- Cercle intérieur -->
+    <circle cx="564" cy="570" r="43" stroke-width="10"/>
+    <!-- Encoche en bas (forme serrure) -->
+    <path d="M 543,610 L 543,658 L 586,658 L 586,610" stroke-width="9"/>
+
+  </g>
+</svg>

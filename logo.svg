@@ -4,33 +4,47 @@
     <!-- Cercle extérieur -->
     <circle cx="490" cy="580" r="415" stroke-width="5"/>
 
-    <!-- "2" — quadrant supérieur gauche -->
+    <!-- ===== CHIFFRE "5" (côté gauche) ===== -->
+
+    <!-- Barre supérieure du 5 (horizontale en haut) -->
+    <line x1="215" y1="115" x2="400" y2="115" stroke-width="11"/>
+
+    <!-- Côté gauche vertical (haut) -->
+    <line x1="215" y1="115" x2="215" y2="330" stroke-width="11"/>
+
+    <!-- Barre médiane horizontale du 5 -->
+    <line x1="215" y1="330" x2="395" y2="330" stroke-width="11"/>
+
+    <!-- Bol inférieur du 5 — grande courbe C -->
     <path d="
-      M 215,270
-      C 210,155 260,100 325,100
-      C 395,100 425,160 415,220
-      C 405,275 355,315 305,348
-      C 265,370 230,382 215,390
-      L 400,390
+      M 395,330
+      C 470,330 500,380 500,450
+      C 500,550 435,630 340,638
+      C 250,645 180,590 178,510
+      C 176,455 215,415 255,405
     " stroke-width="11"/>
-    <!-- Boucle/spirale en haut du 2 -->
-    <path d="M 268,196 C 252,158 268,125 298,130 C 328,136 332,168 312,190" stroke-width="7"/>
 
-    <!-- "N" — quadrant supérieur droit (N en blocs avec diagonale) -->
-    <rect x="432" y="105" width="192" height="245" stroke-width="11"/>
-    <line x1="432" y1="105" x2="624" y2="350" stroke-width="11"/>
+    <!-- Boucle/spirale caractéristique en haut gauche du 5 -->
+    <path d="
+      M 390,115
+      C 380,102 350,96 315,104
+      C 250,118 200,170 210,245
+      C 218,308 272,336 330,336
+    " stroke-width="9"/>
+    <path d="M 262,200 C 246,162 264,128 294,137 C 322,147 323,180 302,197" stroke-width="7"/>
 
-    <!-- "L" — quadrant inférieur gauche (L encadré) -->
-    <rect x="198" y="420" width="198" height="228" stroke-width="11"/>
-    <polyline points="213,433 213,633 388,633" stroke-width="11"/>
+    <!-- ===== CHIFFRE "2" (côté droit) ===== -->
 
-    <!-- Forme "O"/serrure — quadrant inférieur droit -->
-    <!-- Grand cercle -->
-    <circle cx="564" cy="535" r="118" stroke-width="11"/>
+    <!-- Arc supérieur du 2 — version bloc rectangulaire avec diagonale -->
+    <rect x="438" y="108" width="186" height="240" stroke-width="11"/>
+    <line x1="438" y1="108" x2="624" y2="348" stroke-width="11"/>
+
+    <!-- Corps bas du 2 — cercle avec trou en serrure -->
+    <circle cx="560" cy="532" r="115" stroke-width="11"/>
     <!-- Cercle intérieur -->
-    <circle cx="564" cy="570" r="43" stroke-width="10"/>
-    <!-- Encoche en bas (forme serrure) -->
-    <path d="M 543,610 L 543,658 L 586,658 L 586,610" stroke-width="9"/>
+    <circle cx="560" cy="566" r="43" stroke-width="10"/>
+    <!-- Encoche / ouverture en bas (serrure) -->
+    <path d="M 540,605 L 540,654 L 580,654 L 580,605" stroke-width="9"/>
 
   </g>
 </svg>

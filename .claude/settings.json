@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "claude-for-financial-services": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/financial-services"
+      }
+    }
+  }
+}

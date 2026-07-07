@@ -19,6 +19,8 @@ jobs:
           python-version: '3.11'
 
       - name: Run paper trading bot
+        env:
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
         run: python paper-trading/bot.py
 
       - name: Commit updated state

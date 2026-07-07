@@ -3,10 +3,9 @@
 Paper trading bot — SIMULATION ONLY, no real money, no real broker.
 
 Runs on a schedule (see .github/workflows/paper-trading-bot.yml), fetches
-daily candles for the watchlist from Stooq (free, no API key required),
-applies a rule-based volatility/momentum strategy, and updates state.json
-with simulated buys/sells. Nothing here places a real order or touches
-real funds.
+daily candles for the watchlist from Twelve Data, applies a rule-based
+volatility/momentum strategy, and updates state.json with simulated
+buys/sells. Nothing here places a real order or touches real funds.
 """
 import json
 import os
@@ -19,7 +18,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 STATE_PATH = os.path.join(BASE_DIR, "state.json")
 
-STOOQ_URL = "https://stooq.com/q/d/l/"
+TWELVE_DATA_API_KEY = os.environ.get("TWELVE_DATA_API_KEY", "")
+TWELVE_DATA_URL = "https://api.twelvedata.com/time_series"
 
 
 def load_json(path):
@@ -33,39 +33,31 @@ def save_json(path, data):
         f.write("\n")
 
 
-def fetch_candles(symbol, days=220):
-    today = datetime.date.today()
-    d1 = (today - datetime.timedelta(days=days)).strftime("%Y%m%d")
-    d2 = today.strftime("%Y%m%d")
-    url = f"{STOOQ_URL}?s={symbol.lower()}.us&d1={d1}&d2={d2}&i=d"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+def fetch_candles(symbol, outputsize=150):
+    url = (f"{TWELVE_DATA_URL}?symbol={symbol}&interval=1day"
+           f"&outputsize={outputsize}&apikey={TWELVE_DATA_API_KEY}")
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            text = resp.read().decode()
+        with urllib.request.urlopen(url, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
         print(f"  [{symbol}] fetch error: {e}")
         return None
 
-    lines = text.strip().splitlines()
-    if len(lines) < 2 or "," not in lines[0]:
-        print(f"  [{symbol}] no data, raw response: {text[:200]!r}")
+    if data.get("status") == "error" or "values" not in data:
+        print(f"  [{symbol}] no data: {data.get('message', data)!r}")
         return None
 
-    closes, highs, lows = [], [], []
-    for line in lines[1:]:
-        parts = line.split(",")
-        if len(parts) < 5:
-            continue
-        try:
-            h, l, c = float(parts[2]), float(parts[3]), float(parts[4])
-        except ValueError:
-            continue
-        highs.append(h)
-        lows.append(l)
-        closes.append(c)
+    values = list(reversed(data["values"]))  # API returns newest-first
+    try:
+        closes = [float(v["close"]) for v in values]
+        highs = [float(v["high"]) for v in values]
+        lows = [float(v["low"]) for v in values]
+    except (KeyError, ValueError) as e:
+        print(f"  [{symbol}] parse error: {e}")
+        return None
 
     if len(closes) < 2:
-        print(f"  [{symbol}] insufficient data ({len(lines)} lines), raw response: {text[:200]!r}")
+        print(f"  [{symbol}] insufficient data ({len(closes)} bars)")
         return None
     return {"c": closes, "h": highs, "l": lows}
 
@@ -243,6 +235,10 @@ def update_equity(state, analyses, today):
 
 
 def main():
+    if not TWELVE_DATA_API_KEY:
+        print("TWELVE_DATA_API_KEY is not set — add it as a repo/workflow secret.")
+        raise SystemExit(1)
+
     cfg = load_json(CONFIG_PATH)
     state = load_json(STATE_PATH)
     today = datetime.date.today().isoformat()
@@ -257,7 +253,7 @@ def main():
             info = analyze(symbol, candles, cfg)
             if info is not None:
                 analyses[symbol] = info
-        time.sleep(0.3)  # be polite to the free data source
+        time.sleep(8)  # stay under Twelve Data's free-tier 8 req/min limit
 
     process_exits(state, cfg, analyses, today)
     process_entries(state, cfg, analyses, today)

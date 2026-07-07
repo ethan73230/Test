@@ -7,6 +7,7 @@
 <style>
   .viz-root {
     --surface-1:      #fcfcfb;
+    --surface-2:      #f2f1ed;
     --page:           #f9f9f7;
     --text-primary:   #0b0b0b;
     --text-secondary: #52514e;
@@ -19,7 +20,8 @@
   }
   @media (prefers-color-scheme: dark) {
     .viz-root {
-      --surface-1:      #1a1a19;
+      --surface-1:      #171716;
+      --surface-2:      #202020;
       --page:           #0d0d0d;
       --text-primary:   #ffffff;
       --text-secondary: #c3c2b7;
@@ -32,7 +34,8 @@
     }
   }
   :root[data-theme="dark"] .viz-root {
-    --surface-1:      #1a1a19;
+    --surface-1:      #171716;
+    --surface-2:      #202020;
     --page:           #0d0d0d;
     --text-primary:   #ffffff;
     --text-secondary: #c3c2b7;
@@ -45,6 +48,7 @@
   }
   :root[data-theme="light"] .viz-root {
     --surface-1:      #fcfcfb;
+    --surface-2:      #f2f1ed;
     --page:           #f9f9f7;
     --text-primary:   #0b0b0b;
     --text-secondary: #52514e;
@@ -61,12 +65,55 @@
     background: var(--page);
     color: var(--text-primary);
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    max-width: 980px;
+    max-width: 1040px;
     margin: 0 auto;
-    padding: 24px 16px 64px;
+    padding: 20px 16px 64px;
   }
-  .viz-root h1 { font-size: 22px; margin: 0 0 4px; }
-  .viz-root .subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 20px; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand h1 { font-size: 21px; margin: 0; letter-spacing: -0.02em; }
+  .badge-sim {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--critical);
+    background: rgba(208,59,59,0.12);
+    border-radius: 4px;
+    padding: 3px 7px;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 14px; }
+  .status-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); flex: none; }
+  .status-dot.live { background: var(--good); box-shadow: 0 0 0 3px rgba(12,163,12,0.15); }
+  .status-dot.idle { background: var(--text-muted); }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--series-1);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 7px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  .subtitle { color: var(--text-secondary); font-size: 14px; margin: 4px 0 16px; }
 
   .disclaimer {
     background: var(--surface-1);
@@ -79,6 +126,39 @@
     margin-bottom: 20px;
   }
   .disclaimer strong { color: var(--text-primary); }
+
+  .setup-banner {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--series-1);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .setup-banner h2 { font-size: 15px; margin: 0 0 8px; }
+  .setup-banner ol { margin: 0 0 10px; padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+  .setup-banner code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  .ticker-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 2px 2px 10px;
+    margin-bottom: 20px;
+  }
+  .ticker-card {
+    flex: 0 0 auto;
+    min-width: 128px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .ticker-card .sym { font-weight: 700; font-size: 13px; }
+  .ticker-card .px { font-size: 13px; color: var(--text-secondary); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .ticker-meter { height: 4px; background: var(--grid); border-radius: 2px; margin-top: 9px; overflow: hidden; }
+  .ticker-meter-fill { height: 100%; border-radius: 2px; }
+  .ticker-card .sig-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
 
   #last-updated { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
 
@@ -116,8 +196,10 @@
     border-radius: 8px;
     padding: 14px 16px;
   }
+  .stat-tile.hero { grid-column: span 2; }
   .stat-tile .label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
   .stat-tile .value { font-size: 22px; font-variant-numeric: tabular-nums; }
+  .stat-tile.hero .value { font-size: 30px; }
   .stat-tile .delta { font-size: 13px; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .delta.good { color: var(--good); }
   .delta.critical { color: var(--critical); }
@@ -199,7 +281,18 @@
 <body>
 
 <div class="viz-root">
-  <h1>Paper Trading — Actions volatiles</h1>
+  <div class="topbar">
+    <div class="brand">
+      <h1>Paper Trading</h1>
+      <span class="badge-sim">Simulation</span>
+    </div>
+    <div class="topbar-actions">
+      <span class="status-pill" id="status-pill"><span class="status-dot idle"></span>Chargement…</span>
+      <a class="btn-primary" href="https://github.com/ethan73230/Test/actions/workflows/paper-trading-bot.yml" target="_blank" rel="noopener">
+        Lancer une analyse ↗
+      </a>
+    </div>
+  </div>
   <p class="subtitle">Portefeuille virtuel automatisé, stratégie breakout/momentum, horizon de sortie ≤ 3 semaines.</p>
 
   <div class="disclaimer">
@@ -210,7 +303,20 @@
     affiché ici en euros (pas de conversion de change réelle).
   </div>
 
-  <div id="last-updated"></div>
+  <div class="setup-banner" id="setup-banner" style="display:none">
+    <h2>Le bot n'a encore jamais tourné</h2>
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">
+      Tout ce que tu vois plus bas est l'état de départ (capital initial, aucune position). Pour avoir de vraies
+      données de marché et des trades réels de simulation, il reste deux étapes :
+    </p>
+    <ol>
+      <li>Créer une clé gratuite sur <code>finnhub.io</code> et l'ajouter comme secret du repo :
+        <code>Settings → Secrets and variables → Actions → New repository secret</code>, nom <code>FINNHUB_API_KEY</code>.</li>
+      <li>Cliquer sur <strong>« Lancer une analyse »</strong> en haut de page, puis <code>Run workflow</code> sur GitHub.</li>
+    </ol>
+  </div>
+
+  <div class="ticker-strip" id="ticker-strip"></div>
 
   <div class="tabs" id="tabs">
     <button class="tab-btn active" data-tab="portfolio">Portefeuille</button>
@@ -304,11 +410,39 @@ function setupTabs() {
   });
 }
 
+function buildWatchlistRows(state, config) {
+  const snapshot = state.watchlist_snapshot || {};
+  const symbols = config.watchlist.slice();
+  Object.keys(state.positions || {}).forEach(s => { if (!symbols.includes(s)) symbols.push(s); });
+  return symbols.map(sym => {
+    const info = snapshot[sym];
+    return {
+      symbol: sym,
+      price: info ? info.price : null,
+      atr_pct: info ? info.atr_pct : null,
+      rsi: info ? info.rsi : null,
+      breakout: info ? info.breakout : null,
+      signal: info ? info.signal : 'no_signal',
+    };
+  });
+}
+
+function signalLabel(signal) {
+  if (signal === 'buy_candidate') return { text: 'Signal d\'achat', cls: 'signal-buy', color: 'var(--good)' };
+  if (signal === 'in_position') return { text: 'En position', cls: 'signal-position', color: 'var(--series-1)' };
+  return { text: 'Neutre', cls: 'signal-none', color: 'var(--text-muted)' };
+}
+
 function render(state, config) {
-  const lastUpdated = document.getElementById('last-updated');
-  lastUpdated.textContent = state.last_run
-    ? `Dernière exécution du bot : ${new Date(state.last_run).toLocaleString('fr-FR')}`
-    : 'Le bot ne s\'est pas encore exécuté — le tableau ci-dessous montre l\'état de départ.';
+  const statusPill = document.getElementById('status-pill');
+  const setupBanner = document.getElementById('setup-banner');
+  if (state.last_run) {
+    statusPill.innerHTML = `<span class="status-dot live"></span>Dernière analyse : ${new Date(state.last_run).toLocaleString('fr-FR')}`;
+    setupBanner.style.display = 'none';
+  } else {
+    statusPill.innerHTML = `<span class="status-dot idle"></span>Bot jamais lancé`;
+    setupBanner.style.display = 'block';
+  }
 
   const equity = state.equity_history.length
     ? state.equity_history[state.equity_history.length - 1].equity
@@ -320,7 +454,25 @@ function render(state, config) {
   renderPositions(state, config);
   renderTradeLog(state, config);
   renderStrategy(config);
-  renderWatchlist(state, config);
+  const rows = buildWatchlistRows(state, config);
+  renderTickerStrip(rows);
+  renderWatchlist(rows);
+}
+
+function renderTickerStrip(rows) {
+  const el = document.getElementById('ticker-strip');
+  el.innerHTML = rows.map(r => {
+    const sig = signalLabel(r.signal);
+    const rsiWidth = r.rsi == null ? 0 : Math.max(2, Math.min(100, r.rsi));
+    return `
+      <div class="ticker-card">
+        <div class="sym">${r.symbol}</div>
+        <div class="px">${r.price == null ? '—' : fmtEUR(r.price)}</div>
+        <div class="ticker-meter"><div class="ticker-meter-fill" style="width:${rsiWidth}%; background:${sig.color}"></div></div>
+        <div class="sig-label">${r.rsi == null ? 'Pas de données' : 'RSI ' + r.rsi.toFixed(0) + ' · ' + sig.text}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderStats(state, equity, totalReturn, config) {
@@ -329,14 +481,14 @@ function renderStats(state, equity, totalReturn, config) {
   const winRate = sells ? wins / sells : null;
 
   const tiles = [
-    { label: 'Valeur du portefeuille', value: fmtEUR(equity), delta: fmtPct(totalReturn), good: totalReturn >= 0 },
+    { label: 'Valeur du portefeuille', value: fmtEUR(equity), delta: fmtPct(totalReturn), good: totalReturn >= 0, hero: true },
     { label: 'Cash disponible', value: fmtEUR(state.cash) },
     { label: 'Positions ouvertes', value: Object.keys(state.positions).length + ' / ' + config.max_positions },
     { label: 'Taux de réussite', value: winRate === null ? '—' : (winRate * 100).toFixed(0) + '%', delta: sells + ' trades clôturés' },
   ];
 
   document.getElementById('stat-row').innerHTML = tiles.map(t => `
-    <div class="stat-tile">
+    <div class="stat-tile ${t.hero ? 'hero' : ''}">
       <div class="label">${t.label}</div>
       <div class="value">${t.value}</div>
       ${t.delta ? `<div class="delta ${t.good === undefined ? '' : (t.good ? 'good' : 'critical')}">${t.delta}</div>` : ''}
@@ -347,11 +499,11 @@ function renderStats(state, equity, totalReturn, config) {
 function renderChart(history, startingCash) {
   const wrap = document.getElementById('chart-wrap');
   if (!history || history.length < 2) {
-    wrap.innerHTML = '<div class="empty">Pas encore assez de données pour tracer la courbe.</div>';
+    wrap.innerHTML = '<div class="empty">Pas encore assez de données pour tracer la courbe — reviens après le premier lancement du bot.</div>';
     return;
   }
 
-  const w = 880, h = 220, padL = 56, padR = 12, padT = 12, padB = 24;
+  const w = 940, h = 220, padL = 56, padR = 12, padT = 12, padB = 24;
   const values = history.map(d => d.equity);
   const min = Math.min(...values, startingCash);
   const max = Math.max(...values, startingCash);
@@ -505,30 +657,8 @@ function renderStrategy(config) {
   document.getElementById('capital-rules').innerHTML = renderCards(capitalRules);
 }
 
-function signalLabel(signal) {
-  if (signal === 'buy_candidate') return { text: 'Signal d\'achat', cls: 'signal-buy' };
-  if (signal === 'in_position') return { text: 'En position', cls: 'signal-position' };
-  return { text: 'Neutre', cls: 'signal-none' };
-}
-
-function renderWatchlist(state, config) {
+function renderWatchlist(rows) {
   const el = document.getElementById('watchlist-table');
-  const snapshot = state.watchlist_snapshot || {};
-  const symbols = config.watchlist.slice();
-  // include any held symbol not in the configured watchlist
-  Object.keys(state.positions || {}).forEach(s => { if (!symbols.includes(s)) symbols.push(s); });
-
-  const rows = symbols.map(sym => {
-    const info = snapshot[sym];
-    return {
-      symbol: sym,
-      price: info ? info.price : null,
-      atr_pct: info ? info.atr_pct : null,
-      rsi: info ? info.rsi : null,
-      breakout: info ? info.breakout : null,
-      signal: info ? info.signal : 'no_signal',
-    };
-  });
 
   const draw = () => {
     const sorted = [...rows].sort((a, b) => {

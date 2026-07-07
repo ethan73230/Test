@@ -299,20 +299,19 @@
     <strong>Simulation uniquement.</strong> Aucun argent réel, aucun courtier connecté.
     Les décisions sont prises par un bot basé sur des règles techniques (volatilité, breakout, RSI) —
     ceci n'est pas un conseil en investissement et rien ne garantit un résultat positif.
-    Les cours viennent de Finnhub en dollars US ; par simplicité, 1 unité de capital virtuel = 1 $ US,
+    Les cours viennent de Stooq en dollars US ; par simplicité, 1 unité de capital virtuel = 1 $ US,
     affiché ici en euros (pas de conversion de change réelle).
   </div>
 
   <div class="setup-banner" id="setup-banner" style="display:none">
     <h2>Le bot n'a encore jamais tourné</h2>
     <p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px;">
-      Tout ce que tu vois plus bas est l'état de départ (capital initial, aucune position). Pour avoir de vraies
-      données de marché et des trades réels de simulation, il reste deux étapes :
+      Tout ce que tu vois plus bas est l'état de départ (capital initial, aucune position). Aucune clé API
+      n'est nécessaire — il suffit de le lancer une première fois :
     </p>
     <ol>
-      <li>Créer une clé gratuite sur <code>finnhub.io</code> et l'ajouter comme secret du repo :
-        <code>Settings → Secrets and variables → Actions → New repository secret</code>, nom <code>FINNHUB_API_KEY</code>.</li>
-      <li>Cliquer sur <strong>« Lancer une analyse »</strong> en haut de page, puis <code>Run workflow</code> sur GitHub.</li>
+      <li>Clique sur <strong>« Lancer une analyse »</strong> en haut de page.</li>
+      <li>Sur GitHub, clique <code>Run workflow</code>, puis le bouton vert dans le panneau qui s'ouvre.</li>
     </ol>
   </div>
 
@@ -351,7 +350,7 @@
       <h2>Comment le bot décide</h2>
       <p class="card-desc">Tourne chaque jour de bourse via GitHub Actions. Règles fixes, aucune improvisation, aucune donnée cachée.</p>
       <ol class="flow-list">
-        <li>Récupère l'historique de cours (Finnhub) pour chaque action du watchlist.</li>
+        <li>Récupère l'historique de cours (Stooq) pour chaque action du watchlist.</li>
         <li>Calcule 3 indicateurs par action : <strong>ATR%</strong> (volatilité), <strong>RSI</strong> (surachat/survente), et une <strong>cassure de plus haut</strong> (breakout).</li>
         <li>Vend d'abord les positions ouvertes qui touchent un seuil de sortie.</li>
         <li>Puis achète, parmi les actions restantes, celles qui passent les 3 filtres d'entrée — en priorisant les plus volatiles.</li>

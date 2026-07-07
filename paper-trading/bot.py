@@ -3,13 +3,13 @@
 Paper trading bot — SIMULATION ONLY, no real money, no real broker.
 
 Runs on a schedule (see .github/workflows/paper-trading-bot.yml), fetches
-daily candles for the watchlist from Finnhub, applies a rule-based
-volatility/momentum strategy, and updates state.json with simulated
-buys/sells. Nothing here places a real order or touches real funds.
+daily candles for the watchlist from Stooq (free, no API key required),
+applies a rule-based volatility/momentum strategy, and updates state.json
+with simulated buys/sells. Nothing here places a real order or touches
+real funds.
 """
 import json
 import os
-import sys
 import time
 import datetime
 import urllib.request
@@ -19,8 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 STATE_PATH = os.path.join(BASE_DIR, "state.json")
 
-FINNHUB_API_KEY = os.environ.get("FINNHUB_API_KEY", "")
-FINNHUB_URL = "https://finnhub.io/api/v1/stock/candle"
+STOOQ_URL = "https://stooq.com/q/d/l/"
 
 
 def load_json(path):
@@ -34,20 +33,38 @@ def save_json(path, data):
         f.write("\n")
 
 
-def fetch_candles(symbol, days=120):
-    to_ts = int(time.time())
-    from_ts = to_ts - days * 86400
-    url = f"{FINNHUB_URL}?symbol={symbol}&resolution=D&from={from_ts}&to={to_ts}&token={FINNHUB_API_KEY}"
+def fetch_candles(symbol, days=180):
+    url = f"{STOOQ_URL}?s={symbol.lower()}.us&i=d"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        with urllib.request.urlopen(url, timeout=15) as resp:
-            data = json.loads(resp.read().decode())
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            text = resp.read().decode()
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
         print(f"  [{symbol}] fetch error: {e}")
         return None
-    if data.get("s") != "ok" or not data.get("c"):
-        print(f"  [{symbol}] no data (status={data.get('s')})")
+
+    lines = text.strip().splitlines()
+    if len(lines) < 2 or "," not in lines[0]:
+        print(f"  [{symbol}] no data")
         return None
-    return data
+
+    closes, highs, lows = [], [], []
+    for line in lines[1:][-days:]:
+        parts = line.split(",")
+        if len(parts) < 5:
+            continue
+        try:
+            h, l, c = float(parts[2]), float(parts[3]), float(parts[4])
+        except ValueError:
+            continue
+        highs.append(h)
+        lows.append(l)
+        closes.append(c)
+
+    if len(closes) < 2:
+        print(f"  [{symbol}] insufficient data")
+        return None
+    return {"c": closes, "h": highs, "l": lows}
 
 
 def sma(values, period):
@@ -223,10 +240,6 @@ def update_equity(state, analyses, today):
 
 
 def main():
-    if not FINNHUB_API_KEY:
-        print("FINNHUB_API_KEY is not set — add it as a repo/workflow secret.")
-        sys.exit(1)
-
     cfg = load_json(CONFIG_PATH)
     state = load_json(STATE_PATH)
     today = datetime.date.today().isoformat()
@@ -237,12 +250,11 @@ def main():
     analyses = {}
     for symbol in symbols:
         candles = fetch_candles(symbol)
-        if candles is None:
-            continue
-        info = analyze(symbol, candles, cfg)
-        if info is not None:
-            analyses[symbol] = info
-        time.sleep(1.1)  # stay under Finnhub's free-tier rate limit
+        if candles is not None:
+            info = analyze(symbol, candles, cfg)
+            if info is not None:
+                analyses[symbol] = info
+        time.sleep(0.3)  # be polite to the free data source
 
     process_exits(state, cfg, analyses, today)
     process_entries(state, cfg, analyses, today)

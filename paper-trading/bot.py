@@ -33,8 +33,11 @@ def save_json(path, data):
         f.write("\n")
 
 
-def fetch_candles(symbol, days=180):
-    url = f"{STOOQ_URL}?s={symbol.lower()}.us&i=d"
+def fetch_candles(symbol, days=220):
+    today = datetime.date.today()
+    d1 = (today - datetime.timedelta(days=days)).strftime("%Y%m%d")
+    d2 = today.strftime("%Y%m%d")
+    url = f"{STOOQ_URL}?s={symbol.lower()}.us&d1={d1}&d2={d2}&i=d"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
@@ -45,11 +48,11 @@ def fetch_candles(symbol, days=180):
 
     lines = text.strip().splitlines()
     if len(lines) < 2 or "," not in lines[0]:
-        print(f"  [{symbol}] no data")
+        print(f"  [{symbol}] no data, raw response: {text[:200]!r}")
         return None
 
     closes, highs, lows = [], [], []
-    for line in lines[1:][-days:]:
+    for line in lines[1:]:
         parts = line.split(",")
         if len(parts) < 5:
             continue
@@ -62,7 +65,7 @@ def fetch_candles(symbol, days=180):
         closes.append(c)
 
     if len(closes) < 2:
-        print(f"  [{symbol}] insufficient data")
+        print(f"  [{symbol}] insufficient data ({len(lines)} lines), raw response: {text[:200]!r}")
         return None
     return {"c": closes, "h": highs, "l": lows}
 

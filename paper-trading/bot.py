@@ -3,9 +3,10 @@
 Paper trading bot — SIMULATION ONLY, no real money, no real broker.
 
 Runs on a schedule (see .github/workflows/paper-trading-bot.yml), fetches
-daily candles for the watchlist from Twelve Data, applies a rule-based
-volatility/momentum strategy, and updates state.json with simulated
-buys/sells. Nothing here places a real order or touches real funds.
+daily candles for the watchlist from Yahoo Finance's public chart API (no
+API key required), applies a rule-based volatility/momentum strategy, and
+updates state.json with simulated buys/sells. Nothing here places a real
+order or touches real funds.
 """
 import json
 import os
@@ -18,8 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 STATE_PATH = os.path.join(BASE_DIR, "state.json")
 
-TWELVE_DATA_API_KEY = os.environ.get("TWELVE_DATA_API_KEY", "")
-TWELVE_DATA_URL = "https://api.twelvedata.com/time_series"
+YAHOO_URL = "https://query1.finance.yahoo.com/v8/finance/chart"
 
 
 def load_json(path):
@@ -33,28 +33,29 @@ def save_json(path, data):
         f.write("\n")
 
 
-def fetch_candles(symbol, outputsize=150):
-    url = (f"{TWELVE_DATA_URL}?symbol={symbol}&interval=1day"
-           f"&outputsize={outputsize}&apikey={TWELVE_DATA_API_KEY}")
+def fetch_candles(symbol, range_="1y"):
+    url = f"{YAHOO_URL}/{symbol}?range={range_}&interval=1d"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        with urllib.request.urlopen(url, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read().decode())
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
         print(f"  [{symbol}] fetch error: {e}")
         return None
 
-    if data.get("status") == "error" or "values" not in data:
-        print(f"  [{symbol}] no data: {data.get('message', data)!r}")
+    result_list = data.get("chart", {}).get("result")
+    if not result_list:
+        print(f"  [{symbol}] no data: {data.get('chart', {}).get('error')!r}")
         return None
 
-    values = list(reversed(data["values"]))  # API returns newest-first
-    try:
-        closes = [float(v["close"]) for v in values]
-        highs = [float(v["high"]) for v in values]
-        lows = [float(v["low"]) for v in values]
-    except (KeyError, ValueError) as e:
-        print(f"  [{symbol}] parse error: {e}")
-        return None
+    quote = result_list[0]["indicators"]["quote"][0]
+    closes, highs, lows = [], [], []
+    for h, l, c in zip(quote.get("high", []), quote.get("low", []), quote.get("close", [])):
+        if h is None or l is None or c is None:
+            continue
+        highs.append(h)
+        lows.append(l)
+        closes.append(c)
 
     if len(closes) < 2:
         print(f"  [{symbol}] insufficient data ({len(closes)} bars)")
@@ -235,10 +236,6 @@ def update_equity(state, analyses, today):
 
 
 def main():
-    if not TWELVE_DATA_API_KEY:
-        print("TWELVE_DATA_API_KEY is not set — add it as a repo/workflow secret.")
-        raise SystemExit(1)
-
     cfg = load_json(CONFIG_PATH)
     state = load_json(STATE_PATH)
     today = datetime.date.today().isoformat()
@@ -253,7 +250,7 @@ def main():
             info = analyze(symbol, candles, cfg)
             if info is not None:
                 analyses[symbol] = info
-        time.sleep(8)  # stay under Twelve Data's free-tier 8 req/min limit
+        time.sleep(0.5)  # be polite between requests
 
     process_exits(state, cfg, analyses, today)
     process_entries(state, cfg, analyses, today)

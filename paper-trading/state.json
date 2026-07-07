@@ -1,0 +1,9 @@
+{
+  "cash": 10000,
+  "starting_cash": 10000,
+  "positions": {},
+  "last_prices": {},
+  "trade_log": [],
+  "equity_history": [],
+  "last_run": null
+}

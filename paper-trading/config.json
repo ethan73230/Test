@@ -1,0 +1,16 @@
+{
+  "watchlist": [
+    "TSLA", "NVDA", "COIN", "MARA", "RIOT", "PLTR", "SMCI",
+    "AMD", "SOFI", "AFRM", "UPST", "GME", "AMC", "CVNA", "RIVN"
+  ],
+  "starting_cash": 10000,
+  "max_positions": 5,
+  "position_size_pct": 0.10,
+  "take_profit_pct": 0.15,
+  "stop_loss_pct": 0.08,
+  "max_hold_days": 15,
+  "atr_volatility_min_pct": 0.03,
+  "rsi_period": 14,
+  "rsi_overbought": 70,
+  "breakout_lookback": 20
+}

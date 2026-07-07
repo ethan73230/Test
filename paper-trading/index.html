@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Trading — Simulation de portefeuille</title>
+<style>
+  .viz-root {
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6;
+    --good:           #0ca30c;
+    --critical:       #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    .viz-root {
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --good:           #0ca30c;
+      --critical:       #e66767;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --good:           #0ca30c;
+    --critical:       #e66767;
+  }
+  :root[data-theme="light"] .viz-root {
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6;
+    --good:           #0ca30c;
+    --critical:       #d03b3b;
+  }
+
+  .viz-root {
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+  }
+  .viz-root h1 { font-size: 22px; margin: 0 0 4px; }
+  .viz-root .subtitle { color: var(--text-secondary); font-size: 14px; margin: 0 0 20px; }
+
+  .disclaimer {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--critical);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  .disclaimer strong { color: var(--text-primary); }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .stat-tile .label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-tile .value { font-size: 22px; font-variant-numeric: tabular-nums; }
+  .stat-tile .delta { font-size: 13px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .delta.good { color: var(--good); }
+  .delta.critical { color: var(--critical); }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 12px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 12px; }
+  td.num { text-align: right; }
+  .pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+  .pill.buy { background: rgba(12,163,12,0.12); color: var(--good); }
+  .pill.sell { background: rgba(208,59,59,0.12); color: var(--critical); }
+
+  .empty { color: var(--text-muted); font-size: 13px; }
+
+  .tooltip {
+    position: absolute;
+    background: var(--text-primary);
+    color: var(--page);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    white-space: nowrap;
+  }
+  .chart-wrap { position: relative; }
+  #last-updated { font-size: 12px; color: var(--text-muted); margin-top: -12px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="viz-root">
+  <h1>Paper Trading — Actions volatiles</h1>
+  <p class="subtitle">Portefeuille virtuel automatisé, stratégie breakout/momentum, horizon de sortie ≤ 3 semaines.</p>
+
+  <div class="disclaimer">
+    <strong>Simulation uniquement.</strong> Aucun argent réel, aucun courtier connecté.
+    Les décisions sont prises par un bot basé sur des règles techniques (volatilité, breakout, RSI) —
+    ceci n'est pas un conseil en investissement et rien ne garantit un résultat positif.
+  </div>
+
+  <div id="last-updated"></div>
+
+  <div class="stat-row" id="stat-row"></div>
+
+  <div class="card">
+    <h2>Courbe d'équité (valeur totale du portefeuille)</h2>
+    <div class="chart-wrap" id="chart-wrap">
+      <div class="empty">Chargement…</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Positions ouvertes</h2>
+    <div id="positions-table"></div>
+  </div>
+
+  <div class="card">
+    <h2>Journal des trades</h2>
+    <div id="trade-log-table"></div>
+  </div>
+</div>
+
+<script>
+const fmtUSD = (n) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const fmtPct = (n) => (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%';
+
+async function load() {
+  const [state, config] = await Promise.all([
+    fetch('state.json').then(r => r.json()),
+    fetch('config.json').then(r => r.json()),
+  ]);
+  render(state, config);
+}
+
+function render(state, config) {
+  const lastUpdated = document.getElementById('last-updated');
+  lastUpdated.textContent = state.last_run
+    ? `Dernière exécution du bot : ${new Date(state.last_run).toLocaleString('fr-FR')}`
+    : 'Le bot ne s\'est pas encore exécuté.';
+
+  const equity = state.equity_history.length
+    ? state.equity_history[state.equity_history.length - 1].equity
+    : state.starting_cash;
+  const totalReturn = (equity - state.starting_cash) / state.starting_cash;
+
+  const positionsValue = Object.entries(state.positions).reduce((sum, [sym, pos]) => {
+    const price = state.last_prices[sym] ?? pos.entry_price;
+    return sum + pos.shares * price;
+  }, 0);
+
+  renderStats(state, equity, totalReturn);
+  renderChart(state.equity_history, state.starting_cash);
+  renderPositions(state);
+  renderTradeLog(state);
+}
+
+function renderStats(state, equity, totalReturn) {
+  const wins = state.trade_log.filter(t => t.action === 'SELL' && t.pnl > 0).length;
+  const sells = state.trade_log.filter(t => t.action === 'SELL').length;
+  const winRate = sells ? wins / sells : null;
+
+  const tiles = [
+    { label: 'Valeur du portefeuille', value: fmtUSD(equity), delta: fmtPct(totalReturn), good: totalReturn >= 0 },
+    { label: 'Cash disponible', value: fmtUSD(state.cash) },
+    { label: 'Positions ouvertes', value: Object.keys(state.positions).length + ' / ' + '5' },
+    { label: 'Taux de réussite', value: winRate === null ? '—' : (winRate * 100).toFixed(0) + '%', delta: sells + ' trades clôturés' },
+  ];
+
+  document.getElementById('stat-row').innerHTML = tiles.map(t => `
+    <div class="stat-tile">
+      <div class="label">${t.label}</div>
+      <div class="value">${t.value}</div>
+      ${t.delta ? `<div class="delta ${t.good === undefined ? '' : (t.good ? 'good' : 'critical')}">${t.delta}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderChart(history, startingCash) {
+  const wrap = document.getElementById('chart-wrap');
+  if (!history || history.length < 2) {
+    wrap.innerHTML = '<div class="empty">Pas encore assez de données pour tracer la courbe.</div>';
+    return;
+  }
+
+  const w = 880, h = 220, padL = 56, padR = 12, padT = 12, padB = 24;
+  const values = history.map(d => d.equity);
+  const min = Math.min(...values, startingCash);
+  const max = Math.max(...values, startingCash);
+  const range = (max - min) || 1;
+
+  const x = i => padL + (i / (history.length - 1)) * (w - padL - padR);
+  const y = v => padT + (1 - (v - min) / range) * (h - padT - padB);
+
+  const linePoints = history.map((d, i) => `${x(i)},${y(d.equity)}`).join(' ');
+  const baselineY = y(startingCash);
+
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map(f => {
+    const v = min + f * range;
+    return `<line x1="${padL}" y1="${y(v)}" x2="${w - padR}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/>
+            <text x="${padL - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--text-muted)">${Math.round(v)}</text>`;
+  }).join('');
+
+  const dots = history.map((d, i) => `<circle class="pt" data-i="${i}" cx="${x(i)}" cy="${y(d.equity)}" r="8" fill="transparent"/>`).join('');
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="Courbe d'équité du portefeuille">
+      ${gridLines}
+      <line x1="${padL}" y1="${baselineY}" x2="${w - padR}" y2="${baselineY}" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3,3"/>
+      <polyline points="${linePoints}" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+    </svg>
+    <div class="tooltip" id="chart-tooltip"></div>
+  `;
+
+  const tooltip = document.getElementById('chart-tooltip');
+  wrap.querySelectorAll('.pt').forEach(pt => {
+    pt.addEventListener('mouseenter', (e) => {
+      const i = +pt.dataset.i;
+      const d = history[i];
+      tooltip.textContent = `${d.date} — ${fmtUSD(d.equity)}`;
+      tooltip.style.opacity = 1;
+      const rect = wrap.getBoundingClientRect();
+      tooltip.style.left = (pt.cx.baseVal.value / w) * rect.width + 'px';
+      tooltip.style.top = (pt.cy.baseVal.value / h) * rect.height - 28 + 'px';
+    });
+    pt.addEventListener('mouseleave', () => { tooltip.style.opacity = 0; });
+  });
+}
+
+function renderPositions(state) {
+  const entries = Object.entries(state.positions);
+  const el = document.getElementById('positions-table');
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">Aucune position ouverte actuellement.</div>';
+    return;
+  }
+  const rows = entries.map(([sym, pos]) => {
+    const price = state.last_prices[sym] ?? pos.entry_price;
+    const pnlPct = (price - pos.entry_price) / pos.entry_price;
+    return `<tr>
+      <td>${sym}</td>
+      <td class="num">${pos.shares.toFixed(4)}</td>
+      <td class="num">${fmtUSD(pos.entry_price)}</td>
+      <td class="num">${fmtUSD(price)}</td>
+      <td class="num ${pnlPct >= 0 ? 'delta good' : 'delta critical'}">${fmtPct(pnlPct)}</td>
+      <td>${pos.entry_date}</td>
+      <td class="num">${pos.days_held ?? 0} / ${15}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<table>
+    <thead><tr><th>Symbole</th><th>Actions</th><th>Prix d'entrée</th><th>Prix actuel</th><th>P&L</th><th>Date d'entrée</th><th>Jours détenus</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderTradeLog(state) {
+  const el = document.getElementById('trade-log-table');
+  if (!state.trade_log.length) {
+    el.innerHTML = '<div class="empty">Aucun trade exécuté pour l\'instant.</div>';
+    return;
+  }
+  const rows = [...state.trade_log].reverse().map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.symbol}</td>
+      <td><span class="pill ${t.action.toLowerCase()}">${t.action}</span></td>
+      <td class="num">${t.shares.toFixed(4)}</td>
+      <td class="num">${fmtUSD(t.price)}</td>
+      <td>${t.reason ?? ''}</td>
+      <td class="num ${t.pnl == null ? '' : (t.pnl >= 0 ? 'delta good' : 'delta critical')}">${t.pnl == null ? '—' : fmtUSD(t.pnl)}</td>
+    </tr>
+  `).join('');
+  el.innerHTML = `<table>
+    <thead><tr><th>Date</th><th>Symbole</th><th>Action</th><th>Actions</th><th>Prix</th><th>Motif</th><th>P&L</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+load().catch(err => {
+  document.querySelector('.viz-root').innerHTML =
+    '<p style="color:#d03b3b">Impossible de charger state.json / config.json : ' + err.message + '</p>';
+});
+</script>
+</body>
+</html>

@@ -143,6 +143,8 @@
     <strong>Simulation uniquement.</strong> Aucun argent réel, aucun courtier connecté.
     Les décisions sont prises par un bot basé sur des règles techniques (volatilité, breakout, RSI) —
     ceci n'est pas un conseil en investissement et rien ne garantit un résultat positif.
+    Les cours viennent de Finnhub en dollars US ; par simplicité, 1 unité de capital virtuel = 1 $ US,
+    affiché ici en euros (pas de conversion de change réelle).
   </div>
 
   <div id="last-updated"></div>
@@ -168,7 +170,7 @@
 </div>
 
 <script>
-const fmtUSD = (n) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const fmtEUR = (n) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
 const fmtPct = (n) => (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%';
 
 async function load() {
@@ -207,8 +209,8 @@ function renderStats(state, equity, totalReturn) {
   const winRate = sells ? wins / sells : null;
 
   const tiles = [
-    { label: 'Valeur du portefeuille', value: fmtUSD(equity), delta: fmtPct(totalReturn), good: totalReturn >= 0 },
-    { label: 'Cash disponible', value: fmtUSD(state.cash) },
+    { label: 'Valeur du portefeuille', value: fmtEUR(equity), delta: fmtPct(totalReturn), good: totalReturn >= 0 },
+    { label: 'Cash disponible', value: fmtEUR(state.cash) },
     { label: 'Positions ouvertes', value: Object.keys(state.positions).length + ' / ' + '5' },
     { label: 'Taux de réussite', value: winRate === null ? '—' : (winRate * 100).toFixed(0) + '%', delta: sells + ' trades clôturés' },
   ];
@@ -264,7 +266,7 @@ function renderChart(history, startingCash) {
     pt.addEventListener('mouseenter', (e) => {
       const i = +pt.dataset.i;
       const d = history[i];
-      tooltip.textContent = `${d.date} — ${fmtUSD(d.equity)}`;
+      tooltip.textContent = `${d.date} — ${fmtEUR(d.equity)}`;
       tooltip.style.opacity = 1;
       const rect = wrap.getBoundingClientRect();
       tooltip.style.left = (pt.cx.baseVal.value / w) * rect.width + 'px';
@@ -287,8 +289,8 @@ function renderPositions(state) {
     return `<tr>
       <td>${sym}</td>
       <td class="num">${pos.shares.toFixed(4)}</td>
-      <td class="num">${fmtUSD(pos.entry_price)}</td>
-      <td class="num">${fmtUSD(price)}</td>
+      <td class="num">${fmtEUR(pos.entry_price)}</td>
+      <td class="num">${fmtEUR(price)}</td>
       <td class="num ${pnlPct >= 0 ? 'delta good' : 'delta critical'}">${fmtPct(pnlPct)}</td>
       <td>${pos.entry_date}</td>
       <td class="num">${pos.days_held ?? 0} / ${15}</td>
@@ -312,9 +314,9 @@ function renderTradeLog(state) {
       <td>${t.symbol}</td>
       <td><span class="pill ${t.action.toLowerCase()}">${t.action}</span></td>
       <td class="num">${t.shares.toFixed(4)}</td>
-      <td class="num">${fmtUSD(t.price)}</td>
+      <td class="num">${fmtEUR(t.price)}</td>
       <td>${t.reason ?? ''}</td>
-      <td class="num ${t.pnl == null ? '' : (t.pnl >= 0 ? 'delta good' : 'delta critical')}">${t.pnl == null ? '—' : fmtUSD(t.pnl)}</td>
+      <td class="num ${t.pnl == null ? '' : (t.pnl >= 0 ? 'delta good' : 'delta critical')}">${t.pnl == null ? '—' : fmtEUR(t.pnl)}</td>
     </tr>
   `).join('');
   el.innerHTML = `<table>

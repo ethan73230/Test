@@ -23,7 +23,8 @@ bord (`index.html`) affiche le résultat.
 ## Paramètres (`config.json`)
 
 - `watchlist` : tickers suivis.
-- `starting_cash` : capital virtuel de départ.
+- `starting_cash` : capital virtuel de départ (200 € par défaut — les cours viennent
+  de Finnhub en dollars US, traités ici comme équivalent 1:1 pour simplifier).
 - `max_positions` / `position_size_pct` : nombre de positions simultanées et
   taille de chacune (% du cash).
 - `take_profit_pct` / `stop_loss_pct` : seuils de sortie.

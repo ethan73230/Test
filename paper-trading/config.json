@@ -3,7 +3,7 @@
     "TSLA", "NVDA", "COIN", "MARA", "RIOT", "PLTR", "SMCI",
     "AMD", "SOFI", "AFRM", "UPST", "GME", "AMC", "CVNA", "RIVN"
   ],
-  "starting_cash": 10000,
+  "starting_cash": 200,
   "max_positions": 5,
   "position_size_pct": 0.10,
   "take_profit_pct": 0.15,

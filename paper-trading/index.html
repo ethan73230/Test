@@ -56,11 +56,12 @@
     --critical:       #d03b3b;
   }
 
+  * { box-sizing: border-box; }
   .viz-root {
     background: var(--page);
     color: var(--text-primary);
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    max-width: 960px;
+    max-width: 980px;
     margin: 0 auto;
     padding: 24px 16px 64px;
   }
@@ -75,9 +76,33 @@
     padding: 12px 16px;
     font-size: 13px;
     color: var(--text-secondary);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .disclaimer strong { color: var(--text-primary); }
+
+  #last-updated { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    font-family: inherit;
+    font-size: 14px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 10px 16px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-btn.active { color: var(--text-primary); border-bottom-color: var(--series-1); font-weight: 600; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
   .stat-row {
     display: grid;
@@ -105,15 +130,54 @@
     margin-bottom: 24px;
     overflow-x: auto;
   }
-  .card h2 { font-size: 15px; margin: 0 0 12px; }
+  .card h2 { font-size: 15px; margin: 0 0 4px; }
+  .card .card-desc { font-size: 12px; color: var(--text-muted); margin: 0 0 12px; }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
   th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
   th { color: var(--text-muted); font-weight: 500; font-size: 12px; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--text-primary); }
+  th .arrow { font-size: 10px; margin-left: 3px; opacity: 0.6; }
   td.num { text-align: right; }
-  .pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover { background: var(--page); }
+
+  .pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
   .pill.buy { background: rgba(12,163,12,0.12); color: var(--good); }
   .pill.sell { background: rgba(208,59,59,0.12); color: var(--critical); }
+  .pill.signal-buy { background: rgba(12,163,12,0.12); color: var(--good); }
+  .pill.signal-position { background: rgba(42,120,214,0.14); color: var(--series-1); }
+  .pill.signal-none { background: rgba(137,135,129,0.16); color: var(--text-muted); }
+
+  .detail-row td {
+    background: var(--page);
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 10px 14px;
+    white-space: normal;
+  }
+  .chevron { display: inline-block; transition: transform 0.15s; margin-right: 6px; color: var(--text-muted); }
+  .chevron.open { transform: rotate(90deg); }
+
+  .rule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .rule-card {
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .rule-card .rule-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .rule-card .rule-value { font-size: 16px; font-weight: 600; }
+  .rule-card .rule-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+  .flow-list { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+  .flow-list li strong { color: var(--text-primary); }
 
   .empty { color: var(--text-muted); font-size: 13px; }
 
@@ -130,7 +194,6 @@
     white-space: nowrap;
   }
   .chart-wrap { position: relative; }
-  #last-updated { font-size: 12px; color: var(--text-muted); margin-top: -12px; margin-bottom: 20px; }
 </style>
 </head>
 <body>
@@ -149,23 +212,69 @@
 
   <div id="last-updated"></div>
 
-  <div class="stat-row" id="stat-row"></div>
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="portfolio">Portefeuille</button>
+    <button class="tab-btn" data-tab="strategy">Stratégie</button>
+    <button class="tab-btn" data-tab="watchlist">Watchlist</button>
+  </div>
 
-  <div class="card">
-    <h2>Courbe d'équité (valeur totale du portefeuille)</h2>
-    <div class="chart-wrap" id="chart-wrap">
-      <div class="empty">Chargement…</div>
+  <div class="tab-panel active" id="panel-portfolio">
+    <div class="stat-row" id="stat-row"></div>
+
+    <div class="card">
+      <h2>Courbe d'équité (valeur totale du portefeuille)</h2>
+      <div class="chart-wrap" id="chart-wrap">
+        <div class="empty">Chargement…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Positions ouvertes</h2>
+      <div id="positions-table"></div>
+    </div>
+
+    <div class="card">
+      <h2>Journal des trades</h2>
+      <p class="card-desc">Clique une ligne pour voir pourquoi le bot a acheté ou vendu.</p>
+      <div id="trade-log-table"></div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>Positions ouvertes</h2>
-    <div id="positions-table"></div>
+  <div class="tab-panel" id="panel-strategy">
+    <div class="card">
+      <h2>Comment le bot décide</h2>
+      <p class="card-desc">Tourne chaque jour de bourse via GitHub Actions. Règles fixes, aucune improvisation, aucune donnée cachée.</p>
+      <ol class="flow-list">
+        <li>Récupère l'historique de cours (Finnhub) pour chaque action du watchlist.</li>
+        <li>Calcule 3 indicateurs par action : <strong>ATR%</strong> (volatilité), <strong>RSI</strong> (surachat/survente), et une <strong>cassure de plus haut</strong> (breakout).</li>
+        <li>Vend d'abord les positions ouvertes qui touchent un seuil de sortie.</li>
+        <li>Puis achète, parmi les actions restantes, celles qui passent les 3 filtres d'entrée — en priorisant les plus volatiles.</li>
+        <li>Met à jour la courbe d'équité et sauvegarde tout dans <code>state.json</code>.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Conditions d'achat (toutes requises)</h2>
+      <div class="rule-grid" id="entry-rules"></div>
+    </div>
+
+    <div class="card">
+      <h2>Conditions de vente (la première atteinte déclenche la vente)</h2>
+      <div class="rule-grid" id="exit-rules"></div>
+    </div>
+
+    <div class="card">
+      <h2>Gestion du capital</h2>
+      <div class="rule-grid" id="capital-rules"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Journal des trades</h2>
-    <div id="trade-log-table"></div>
+  <div class="tab-panel" id="panel-watchlist">
+    <div class="card">
+      <h2>Watchlist — dernière analyse</h2>
+      <p class="card-desc">Clique un en-tête de colonne pour trier. "Signal d'achat" = les 3 conditions d'entrée sont réunies à la dernière exécution du bot.</p>
+      <div id="watchlist-table"></div>
+    </div>
   </div>
 </div>
 
@@ -173,37 +282,48 @@
 const fmtEUR = (n) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
 const fmtPct = (n) => (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%';
 
+let watchlistSort = { key: 'atr_pct', dir: -1 };
+
 async function load() {
   const [state, config] = await Promise.all([
     fetch('state.json').then(r => r.json()),
     fetch('config.json').then(r => r.json()),
   ]);
   render(state, config);
+  setupTabs();
+}
+
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
 }
 
 function render(state, config) {
   const lastUpdated = document.getElementById('last-updated');
   lastUpdated.textContent = state.last_run
     ? `Dernière exécution du bot : ${new Date(state.last_run).toLocaleString('fr-FR')}`
-    : 'Le bot ne s\'est pas encore exécuté.';
+    : 'Le bot ne s\'est pas encore exécuté — le tableau ci-dessous montre l\'état de départ.';
 
   const equity = state.equity_history.length
     ? state.equity_history[state.equity_history.length - 1].equity
     : state.starting_cash;
   const totalReturn = (equity - state.starting_cash) / state.starting_cash;
 
-  const positionsValue = Object.entries(state.positions).reduce((sum, [sym, pos]) => {
-    const price = state.last_prices[sym] ?? pos.entry_price;
-    return sum + pos.shares * price;
-  }, 0);
-
-  renderStats(state, equity, totalReturn);
+  renderStats(state, equity, totalReturn, config);
   renderChart(state.equity_history, state.starting_cash);
-  renderPositions(state);
-  renderTradeLog(state);
+  renderPositions(state, config);
+  renderTradeLog(state, config);
+  renderStrategy(config);
+  renderWatchlist(state, config);
 }
 
-function renderStats(state, equity, totalReturn) {
+function renderStats(state, equity, totalReturn, config) {
   const wins = state.trade_log.filter(t => t.action === 'SELL' && t.pnl > 0).length;
   const sells = state.trade_log.filter(t => t.action === 'SELL').length;
   const winRate = sells ? wins / sells : null;
@@ -211,7 +331,7 @@ function renderStats(state, equity, totalReturn) {
   const tiles = [
     { label: 'Valeur du portefeuille', value: fmtEUR(equity), delta: fmtPct(totalReturn), good: totalReturn >= 0 },
     { label: 'Cash disponible', value: fmtEUR(state.cash) },
-    { label: 'Positions ouvertes', value: Object.keys(state.positions).length + ' / ' + '5' },
+    { label: 'Positions ouvertes', value: Object.keys(state.positions).length + ' / ' + config.max_positions },
     { label: 'Taux de réussite', value: winRate === null ? '—' : (winRate * 100).toFixed(0) + '%', delta: sells + ' trades clôturés' },
   ];
 
@@ -276,7 +396,7 @@ function renderChart(history, startingCash) {
   });
 }
 
-function renderPositions(state) {
+function renderPositions(state, config) {
   const entries = Object.entries(state.positions);
   const el = document.getElementById('positions-table');
   if (!entries.length) {
@@ -293,7 +413,7 @@ function renderPositions(state) {
       <td class="num">${fmtEUR(price)}</td>
       <td class="num ${pnlPct >= 0 ? 'delta good' : 'delta critical'}">${fmtPct(pnlPct)}</td>
       <td>${pos.entry_date}</td>
-      <td class="num">${pos.days_held ?? 0} / ${15}</td>
+      <td class="num">${pos.days_held ?? 0} / ${config.max_hold_days}</td>
     </tr>`;
   }).join('');
   el.innerHTML = `<table>
@@ -302,27 +422,168 @@ function renderPositions(state) {
   </table>`;
 }
 
-function renderTradeLog(state) {
+function tradeExplanation(t, config) {
+  if (t.action === 'BUY') {
+    return `Achat déclenché par une cassure du plus haut sur ${config.breakout_lookback} jours, avec une volatilité (ATR) `
+      + `au-dessus du seuil de ${(config.atr_volatility_min_pct * 100).toFixed(1)}% et un RSI sous ${config.rsi_overbought} `
+      + `(pas en zone de surachat). Détails bruts : ${t.reason}`;
+  }
+  const map = {
+    take_profit: `Vente automatique : le gain a atteint l'objectif de prise de profit (+${(config.take_profit_pct * 100).toFixed(0)}%).`,
+    stop_loss: `Vente automatique : la perte a atteint le seuil de protection (-${(config.stop_loss_pct * 100).toFixed(0)}%).`,
+    time_exit: `Vente automatique : la position a atteint la durée maximale de détention (${config.max_hold_days} jours de bourse, ~3 semaines) — clôturée quel que soit le résultat, pour respecter l'horizon court demandé.`,
+  };
+  return map[t.reason] || (t.reason ?? '');
+}
+
+function renderTradeLog(state, config) {
   const el = document.getElementById('trade-log-table');
   if (!state.trade_log.length) {
     el.innerHTML = '<div class="empty">Aucun trade exécuté pour l\'instant.</div>';
     return;
   }
-  const rows = [...state.trade_log].reverse().map(t => `
-    <tr>
-      <td>${t.date}</td>
+  const rows = [...state.trade_log].reverse().map((t, i) => `
+    <tr class="clickable" data-i="${i}">
+      <td><span class="chevron" id="chev-${i}">▸</span>${t.date}</td>
       <td>${t.symbol}</td>
       <td><span class="pill ${t.action.toLowerCase()}">${t.action}</span></td>
       <td class="num">${t.shares.toFixed(4)}</td>
       <td class="num">${fmtEUR(t.price)}</td>
-      <td>${t.reason ?? ''}</td>
       <td class="num ${t.pnl == null ? '' : (t.pnl >= 0 ? 'delta good' : 'delta critical')}">${t.pnl == null ? '—' : fmtEUR(t.pnl)}</td>
+    </tr>
+    <tr class="detail-row" id="detail-${i}" style="display:none">
+      <td colspan="6">${tradeExplanation(t, config)}</td>
     </tr>
   `).join('');
   el.innerHTML = `<table>
-    <thead><tr><th>Date</th><th>Symbole</th><th>Action</th><th>Actions</th><th>Prix</th><th>Motif</th><th>P&L</th></tr></thead>
+    <thead><tr><th></th><th>Symbole</th><th>Action</th><th>Actions</th><th>Prix</th><th>P&L</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
+
+  el.querySelectorAll('tr.clickable').forEach(row => {
+    row.addEventListener('click', () => {
+      const i = row.dataset.i;
+      const detail = document.getElementById('detail-' + i);
+      const chev = document.getElementById('chev-' + i);
+      const isOpen = detail.style.display !== 'none';
+      detail.style.display = isOpen ? 'none' : 'table-row';
+      chev.classList.toggle('open', !isOpen);
+    });
+  });
+}
+
+function renderStrategy(config) {
+  const entryRules = [
+    { label: 'Volatilité minimale (ATR%)', value: `≥ ${(config.atr_volatility_min_pct * 100).toFixed(1)}%`,
+      desc: `L'amplitude moyenne de variation sur ${config.rsi_period} jours doit représenter au moins ce % du prix — filtre pour ne garder que les actions volatiles.` },
+    { label: 'Cassure de plus haut', value: `> plus haut ${config.breakout_lookback}j`,
+      desc: `Le prix du jour doit dépasser le plus haut des ${config.breakout_lookback} derniers jours — signal de momentum haussier.` },
+    { label: 'RSI pas suracheté', value: `< ${config.rsi_overbought}`,
+      desc: `Le RSI (${config.rsi_period} jours) doit rester sous ce niveau, pour éviter d'acheter juste avant un retournement.` },
+  ];
+  const exitRules = [
+    { label: 'Prise de profit', value: `+${(config.take_profit_pct * 100).toFixed(0)}%`, desc: 'Vente dès que ce gain non réalisé est atteint.' },
+    { label: 'Stop-loss', value: `−${(config.stop_loss_pct * 100).toFixed(0)}%`, desc: 'Vente dès que cette perte non réalisée est atteinte.' },
+    { label: 'Sortie temporelle', value: `${config.max_hold_days} jours de bourse`, desc: 'Vente forcée après ce délai (~3 semaines), même sans signal de gain ou de perte.' },
+  ];
+  const capitalRules = [
+    { label: 'Capital de départ', value: fmtEUR(config.starting_cash), desc: 'Montant virtuel simulé, aucun dépôt réel.' },
+    { label: 'Taille par position', value: `${(config.position_size_pct * 100).toFixed(0)}% du cash`, desc: 'Chaque achat mobilise ce pourcentage du cash disponible au moment du trade.' },
+    { label: 'Positions simultanées max', value: `${config.max_positions}`, desc: 'Le bot ne détient jamais plus de ce nombre d\'actions en même temps.' },
+  ];
+
+  const renderCards = (rules) => rules.map(r => `
+    <div class="rule-card">
+      <div class="rule-label">${r.label}</div>
+      <div class="rule-value">${r.value}</div>
+      <div class="rule-desc">${r.desc}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('entry-rules').innerHTML = renderCards(entryRules);
+  document.getElementById('exit-rules').innerHTML = renderCards(exitRules);
+  document.getElementById('capital-rules').innerHTML = renderCards(capitalRules);
+}
+
+function signalLabel(signal) {
+  if (signal === 'buy_candidate') return { text: 'Signal d\'achat', cls: 'signal-buy' };
+  if (signal === 'in_position') return { text: 'En position', cls: 'signal-position' };
+  return { text: 'Neutre', cls: 'signal-none' };
+}
+
+function renderWatchlist(state, config) {
+  const el = document.getElementById('watchlist-table');
+  const snapshot = state.watchlist_snapshot || {};
+  const symbols = config.watchlist.slice();
+  // include any held symbol not in the configured watchlist
+  Object.keys(state.positions || {}).forEach(s => { if (!symbols.includes(s)) symbols.push(s); });
+
+  const rows = symbols.map(sym => {
+    const info = snapshot[sym];
+    return {
+      symbol: sym,
+      price: info ? info.price : null,
+      atr_pct: info ? info.atr_pct : null,
+      rsi: info ? info.rsi : null,
+      breakout: info ? info.breakout : null,
+      signal: info ? info.signal : 'no_signal',
+    };
+  });
+
+  const draw = () => {
+    const sorted = [...rows].sort((a, b) => {
+      const { key, dir } = watchlistSort;
+      const av = a[key], bv = b[key];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === 'string') return av.localeCompare(bv) * dir;
+      if (typeof av === 'boolean') return ((av === bv) ? 0 : (av ? -1 : 1)) * dir;
+      return (av - bv) * dir;
+    });
+
+    const cols = [
+      { key: 'symbol', label: 'Symbole' },
+      { key: 'price', label: 'Prix', num: true, fmt: v => v == null ? '—' : fmtEUR(v) },
+      { key: 'atr_pct', label: 'Volatilité (ATR%)', num: true, fmt: v => v == null ? '—' : (v * 100).toFixed(1) + '%' },
+      { key: 'rsi', label: 'RSI', num: true, fmt: v => v == null ? '—' : v.toFixed(1) },
+      { key: 'breakout', label: 'Breakout', fmt: v => v == null ? '—' : (v ? 'Oui' : 'Non') },
+      { key: 'signal', label: 'Signal' },
+    ];
+
+    const head = cols.map(c => {
+      const arrow = watchlistSort.key === c.key ? (watchlistSort.dir === 1 ? '▲' : '▼') : '';
+      return `<th class="sortable" data-key="${c.key}">${c.label}${arrow ? `<span class="arrow">${arrow}</span>` : ''}</th>`;
+    }).join('');
+
+    const body = sorted.map(r => {
+      const cells = cols.map(c => {
+        if (c.key === 'signal') {
+          const s = signalLabel(r.signal);
+          return `<td><span class="pill ${s.cls}">${s.text}</span></td>`;
+        }
+        const val = c.fmt ? c.fmt(r[c.key]) : r[c.key];
+        return `<td class="${c.num ? 'num' : ''}">${val}</td>`;
+      }).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+
+    el.innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+
+    el.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        if (watchlistSort.key === key) {
+          watchlistSort.dir *= -1;
+        } else {
+          watchlistSort = { key, dir: -1 };
+        }
+        draw();
+      });
+    });
+  };
+
+  draw();
 }
 
 load().catch(err => {

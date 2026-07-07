@@ -187,6 +187,27 @@ def process_entries(state, cfg, analyses, today):
               f"(atr%={info['atr_pct']:.3f}, rsi={info['rsi']:.1f})")
 
 
+def build_watchlist_snapshot(cfg, analyses, positions):
+    snapshot = {}
+    for symbol, info in analyses.items():
+        if symbol in positions:
+            signal = "in_position"
+        elif (info["atr_pct"] >= cfg["atr_volatility_min_pct"]
+              and info["breakout"]
+              and info["rsi"] < cfg["rsi_overbought"]):
+            signal = "buy_candidate"
+        else:
+            signal = "no_signal"
+        snapshot[symbol] = {
+            "price": info["price"],
+            "atr_pct": round(info["atr_pct"], 4),
+            "rsi": round(info["rsi"], 1),
+            "breakout": info["breakout"],
+            "signal": signal,
+        }
+    return snapshot
+
+
 def update_equity(state, analyses, today):
     equity = state["cash"]
     for symbol, pos in state["positions"].items():
@@ -226,6 +247,7 @@ def main():
     process_exits(state, cfg, analyses, today)
     process_entries(state, cfg, analyses, today)
     update_equity(state, analyses, today)
+    state["watchlist_snapshot"] = build_watchlist_snapshot(cfg, analyses, state["positions"])
     state["last_run"] = datetime.datetime.utcnow().isoformat() + "Z"
 
     save_json(STATE_PATH, state)

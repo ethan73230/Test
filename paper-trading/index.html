@@ -390,9 +390,10 @@ const fmtPct = (n) => (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%';
 let watchlistSort = { key: 'atr_pct', dir: -1 };
 
 async function load() {
+  const bust = Date.now();
   const [state, config] = await Promise.all([
-    fetch('state.json').then(r => r.json()),
-    fetch('config.json').then(r => r.json()),
+    fetch('state.json?_=' + bust, { cache: 'no-store' }).then(r => r.json()),
+    fetch('config.json?_=' + bust, { cache: 'no-store' }).then(r => r.json()),
   ]);
   render(state, config);
   setupTabs();

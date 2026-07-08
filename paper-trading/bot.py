@@ -178,7 +178,7 @@ def process_entries(state, cfg, analyses, today):
     for symbol, info in candidates[:slots_free]:
         allocation = state["cash"] * cfg["position_size_pct"]
         price = info["price"]
-        if allocation < price or state["cash"] < allocation:
+        if allocation < 0.01 or state["cash"] < allocation:
             continue
         shares = allocation / price
         state["cash"] -= allocation

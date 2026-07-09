@@ -2,10 +2,10 @@ name: Paper Trading Bot
 
 on:
   schedule:
-    # 13:35 UTC = 9:35am ET during US daylight saving time (spring-fall).
-    # UTC doesn't shift for DST, so this runs ~8:35am ET in winter (EST) —
-    # about an hour before the real open the rest of the year.
-    - cron: '35 13 * * 1-5'
+    # Hourly at :35 from 13:35 to 20:35 UTC, weekdays — covers the US
+    # trading session (~9:35am-4:35pm ET during daylight saving time;
+    # UTC doesn't shift for DST, so this runs ~1h earlier in winter).
+    - cron: '35 13-20 * * 1-5'
   workflow_dispatch: {}
 
 permissions:

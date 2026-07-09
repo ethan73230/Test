@@ -119,7 +119,18 @@ def analyze(symbol, candles, cfg):
     }
 
 
+def business_days_between(start, end):
+    days = 0
+    cur = start
+    while cur < end:
+        cur += datetime.timedelta(days=1)
+        if cur.weekday() < 5:
+            days += 1
+    return days
+
+
 def process_exits(state, cfg, analyses, today):
+    today_date = datetime.date.fromisoformat(today)
     for symbol in list(state["positions"].keys()):
         pos = state["positions"][symbol]
         info = analyses.get(symbol)
@@ -128,7 +139,8 @@ def process_exits(state, cfg, analyses, today):
         price = info["price"]
         state["last_prices"][symbol] = price
         pnl_pct = (price - pos["entry_price"]) / pos["entry_price"]
-        pos["days_held"] = pos.get("days_held", 0) + 1
+        entry_date = datetime.date.fromisoformat(pos["entry_date"])
+        pos["days_held"] = business_days_between(entry_date, today_date)
 
         reason = None
         if pnl_pct >= cfg["take_profit_pct"]:

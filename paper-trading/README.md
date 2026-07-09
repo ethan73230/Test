@@ -1,9 +1,9 @@
 # Paper Trading (simulation)
 
 Portefeuille virtuel automatisé — **aucun argent réel, aucun courtier connecté**.
-Un bot tourne chaque jour de bourse via GitHub Actions, évalue le watchlist avec
-une stratégie breakout/momentum, et simule des achats/ventes. Le tableau de
-bord (`index.html`) affiche le résultat.
+Un bot tourne toutes les heures pendant la séance US (jours de semaine) via
+GitHub Actions, évalue le watchlist avec une stratégie breakout/momentum, et
+simule des achats/ventes. Le tableau de bord (`index.html`) affiche le résultat.
 
 ## Mise en route
 
@@ -13,8 +13,9 @@ de Yahoo Finance (gratuit, sans compte).
 1. **Activer GitHub Pages** (optionnel, pour voir le tableau de bord en ligne) :
    `Settings → Pages → Deploy from a branch → main /(root)`. Le dashboard sera
    accessible sur `<url-pages>/paper-trading/`.
-2. Le workflow `.github/workflows/paper-trading-bot.yml` se déclenche chaque
-   jour de semaine, ou manuellement via l'onglet Actions → "Run workflow".
+2. Le workflow `.github/workflows/paper-trading-bot.yml` se déclenche toutes
+   les heures pendant la séance US (jours de semaine), ou manuellement via
+   l'onglet Actions → "Run workflow".
    **Le déclenchement automatique (`schedule`) ne fonctionne que sur la
    branche par défaut** — il faut merger cette branche sur `main` pour que
    le cron s'active.

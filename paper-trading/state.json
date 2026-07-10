@@ -28,9 +28,9 @@
       "signal": "no_signal"
     },
     "AMC": {
-      "price": 1.8801000118255615,
-      "atr_pct": 0.1334,
-      "rsi": 25.4,
+      "price": 1.8899999856948853,
+      "atr_pct": 0.1327,
+      "rsi": 25.5,
       "breakout": false,
       "signal": "no_signal"
     },
@@ -49,16 +49,16 @@
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 65.81999969482422,
+      "price": 65.83000183105469,
       "atr_pct": 0.0571,
       "rsi": 48.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "GME": {
-      "price": 21.670000076293945,
+      "price": 21.68000030517578,
       "atr_pct": 0.0269,
-      "rsi": 51.6,
+      "rsi": 51.7,
       "breakout": false,
       "signal": "no_signal"
     },
@@ -162,5 +162,5 @@
       "equity": 199.06
     }
   ],
-  "last_run": "2026-07-10T20:02:12.299207Z"
+  "last_run": "2026-07-10T21:37:35.428626Z"
 }

@@ -141,9 +141,9 @@
     <div class="card">
       <h2>1. Importer les palettes</h2>
       <div class="dropzone" id="dropzone">
-        <div>Glissez-déposez un fichier <strong>Excel (.xlsx/.csv)</strong> ou <strong>Ruby (.rb)</strong> ici,<br/>ou cliquez pour parcourir.</div>
+        <div>Glissez-déposez un fichier <strong>Excel (.xlsx, .xlsm, .xls, .csv)</strong> ou <strong>Ruby (.rb)</strong> ici,<br/>ou cliquez pour parcourir.</div>
       </div>
-      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.rb" />
+      <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv,.rb" />
       <div id="importMsg"></div>
     </div>
 
@@ -306,7 +306,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       const reader = new FileReader();
       reader.onload = () => parseRuby(reader.result, file.name);
       reader.readAsText(file);
-    } else if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')){
+    } else if (name.endsWith('.xlsx') || name.endsWith('.xlsm') || name.endsWith('.xls') || name.endsWith('.csv')){
       const reader = new FileReader();
       reader.onload = () => parseExcel(reader.result, file.name);
       reader.readAsArrayBuffer(file);

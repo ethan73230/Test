@@ -8,8 +8,8 @@ optimisé pour un camion, à partir d'une liste de palettes.
 Ouvrez `index.html` dans un navigateur (double-clic ou `python3 -m http.server`
 depuis ce dossier), puis :
 
-1. Déposez un fichier Excel (`.xlsx`/`.csv`) ou Ruby (`.rb`), ou saisissez les
-   palettes manuellement dans le tableau.
+1. Déposez un fichier Excel (`.xlsx`, `.xlsm`, `.xls`, `.csv`) ou Ruby (`.rb`),
+   ou saisissez les palettes manuellement dans le tableau.
 2. Choisissez la longueur du camion (13,60 m, 10 m, 8 m, ou une valeur
    personnalisée), ainsi que la largeur/hauteur intérieures si besoin.
 3. Cliquez sur **Générer le plan**.

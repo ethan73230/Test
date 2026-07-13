@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plan de chargement 3D — Blokiwood</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="vendor/xlsx.full.min.js"></script>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+<style>
+  :root{
+    --green:#2D6A4F; --green-light:#40916C; --green-xlight:#52B788;
+    --amber:#C77B2E; --amber-light:#E89B4A;
+    --dark:#0C0F0A; --dark-2:#141A10; --dark-3:#1C2418;
+    --card-bg:#181F14; --text:#F4F1EC; --text-muted:#9BA89A;
+    --border:rgba(255,255,255,.08); --radius:14px;
+    --danger:#D9534F;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);
+    line-height:1.5; min-height:100vh; display:flex; flex-direction:column;
+  }
+  header{
+    padding:18px 28px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    background:var(--dark-2);
+  }
+  header .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.15rem;}
+  header .brand span.dot{width:10px;height:10px;border-radius:50%;background:var(--green-xlight);display:inline-block;}
+  header .subtitle{color:var(--text-muted); font-size:.85rem;}
+  main{
+    flex:1; display:grid; grid-template-columns: 380px 1fr; gap:0;
+    min-height:0;
+  }
+  @media (max-width: 980px){ main{ grid-template-columns: 1fr; } }
+
+  .panel{
+    background:var(--dark-2); border-right:1px solid var(--border);
+    padding:22px; overflow-y:auto; max-height:calc(100vh - 70px);
+  }
+  .card{
+    background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px; margin-bottom:16px;
+  }
+  .card h2{ font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--green-xlight); margin-bottom:12px; }
+
+  .dropzone{
+    border:2px dashed var(--border); border-radius:var(--radius); padding:22px 14px;
+    text-align:center; cursor:pointer; transition:.2s; color:var(--text-muted); font-size:.88rem;
+  }
+  .dropzone:hover, .dropzone.drag{ border-color: var(--green-xlight); color:var(--text); background:rgba(82,183,136,.06); }
+  .dropzone strong{color:var(--text);}
+  input[type=file]{display:none;}
+
+  label{ display:block; font-size:.8rem; color:var(--text-muted); margin-bottom:6px; }
+  select, input[type=number], input[type=text]{
+    width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--border);
+    background:var(--dark-3); color:var(--text); font-size:.88rem; font-family:inherit;
+  }
+  .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .field{ margin-bottom:10px; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:11px 16px; border-radius:9px; border:none; cursor:pointer;
+    font-family:inherit; font-weight:700; font-size:.88rem; transition:.15s; width:100%;
+  }
+  .btn-primary{ background:var(--green-light); color:#fff; }
+  .btn-primary:hover{ background:var(--green-xlight); }
+  .btn-primary:disabled{ background:#3a4238; color:#7c887a; cursor:not-allowed; }
+  .btn-ghost{ background:transparent; border:1px solid var(--border); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--green-xlight); color:var(--green-xlight); }
+  .btn-sm{ width:auto; padding:6px 10px; font-size:.76rem; }
+  .btn-row{ display:flex; gap:8px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:.78rem; }
+  th,td{ padding:6px 5px; border-bottom:1px solid var(--border); text-align:left; }
+  th{ color:var(--text-muted); font-weight:600; font-size:.7rem; text-transform:uppercase; }
+  td input{ padding:4px 6px; font-size:.76rem; }
+  .swatch{ width:12px; height:12px; border-radius:3px; display:inline-block; }
+  .del-btn{ background:none; border:none; color:var(--danger); cursor:pointer; font-size:.9rem; }
+  .table-wrap{ max-height:260px; overflow-y:auto; margin-bottom:10px; }
+
+  .msg{ font-size:.78rem; padding:8px 10px; border-radius:8px; margin-top:8px; }
+  .msg.info{ background:rgba(82,183,136,.12); color:var(--green-xlight); }
+  .msg.warn{ background:rgba(199,123,46,.15); color:var(--amber-light); }
+  .msg.err{ background:rgba(217,83,79,.15); color:#f19490; }
+
+  .viewer{ position:relative; min-height:340px; background:radial-gradient(circle at 50% 20%, #1a2317, #0b0e08); }
+  #canvas-holder{ position:absolute; inset:0; }
+  #canvas-holder canvas{ display:block; width:100%; height:100%; }
+  .viewer-empty{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--text-muted); font-size:.95rem; text-align:center; padding:20px; flex-direction:column; gap:10px;
+  }
+  .viewer-toolbar{
+    position:absolute; top:14px; right:14px; display:flex; gap:8px; z-index:5;
+  }
+  .viewer-toolbar .btn{ width:auto; padding:8px 12px; }
+  .stats-bar{
+    position:absolute; left:14px; bottom:14px; z-index:5; background:rgba(12,15,10,.75);
+    border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:.8rem;
+    backdrop-filter:blur(4px); display:flex; gap:18px; flex-wrap:wrap;
+  }
+  .stats-bar b{ color:var(--green-xlight); }
+  .legend{
+    position:absolute; top:14px; left:14px; z-index:5; background:rgba(12,15,10,.75);
+    border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:.72rem;
+    max-height:220px; overflow-y:auto; backdrop-filter:blur(4px); min-width:150px;
+  }
+  .legend div{ display:flex; align-items:center; gap:6px; margin:3px 0; }
+
+  #print-area{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    #print-area, #print-area *{ visibility:visible; }
+    #print-area{ display:block; position:absolute; top:0; left:0; width:100%; padding:20px; color:#000; background:#fff; }
+    #print-area img{ max-width:100%; border:1px solid #ccc; }
+    #print-area table{ color:#000; }
+    #print-area th,#print-area td{ border-bottom:1px solid #999; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="dot"></span> Plan de chargement 3D</div>
+  <div class="subtitle">Optimisation automatique du remplissage de camions — Blokiwood</div>
+</header>
+
+<main>
+  <section class="panel">
+
+    <div class="card">
+      <h2>1. Importer les palettes</h2>
+      <div class="dropzone" id="dropzone">
+        <div>Glissez-déposez un fichier <strong>Excel (.xlsx/.csv)</strong> ou <strong>Ruby (.rb)</strong> ici,<br/>ou cliquez pour parcourir.</div>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.rb" />
+      <div id="importMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. Palettes à charger</h2>
+      <div class="table-wrap">
+        <table id="palletTable">
+          <thead>
+            <tr>
+              <th></th><th>Réf.</th><th>L (cm)</th><th>l (cm)</th><th>H (cm)</th><th>Qté</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="palletBody"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="addRowBtn">+ Ajouter une palette</button>
+    </div>
+
+    <div class="card">
+      <h2>3. Camion</h2>
+      <div class="field">
+        <label>Longueur du camion</label>
+        <select id="truckLength">
+          <option value="13.6">13,60 m (semi-remorque)</option>
+          <option value="10">10 m</option>
+          <option value="8">8 m</option>
+          <option value="7.2">7,2 m</option>
+          <option value="6">6 m</option>
+          <option value="custom">Autre…</option>
+        </select>
+      </div>
+      <div class="field" id="customLengthField" style="display:none;">
+        <label>Longueur personnalisée (m)</label>
+        <input type="number" id="customLength" min="1" step="0.1" value="13.6" />
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Largeur intérieure (m)</label>
+          <input type="number" id="truckWidth" min="1" step="0.01" value="2.45" />
+        </div>
+        <div class="field">
+          <label>Hauteur intérieure (m)</label>
+          <input type="number" id="truckHeight" min="1" step="0.01" value="2.6" />
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="generateBtn">Générer le plan</button>
+    <div id="genMsg"></div>
+
+  </section>
+
+  <section class="viewer">
+    <div id="canvas-holder"></div>
+    <div class="viewer-empty" id="viewerEmpty">
+      Importez ou saisissez vos palettes,<br/>choisissez un camion, puis cliquez sur « Générer le plan ».
+    </div>
+    <div class="legend" id="legend" style="display:none;"></div>
+    <div class="viewer-toolbar" id="viewerToolbar" style="display:none;">
+      <button class="btn btn-ghost" id="downloadBtn">⬇ Télécharger l'image</button>
+      <button class="btn btn-ghost" id="printBtn">🖨 Imprimer</button>
+    </div>
+    <div class="stats-bar" id="statsBar" style="display:none;"></div>
+  </section>
+</main>
+
+<div id="print-area">
+  <h1 style="margin-bottom:10px;">Plan de chargement — <span id="printTruckInfo"></span></h1>
+  <img id="printImage" src="" />
+  <h2 style="margin:16px 0 8px;">Détail des palettes</h2>
+  <table id="printTable"></table>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "./vendor/OrbitControls.js";
+
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------------
+   * 1. State
+   * --------------------------------------------------------- */
+  let pallets = []; // {ref, length, width, height, qty}
+  let rowIdCounter = 0;
+  const COLORS = ["#52B788","#C77B2E","#4C8FE8","#D9534F","#B08BD9","#E8C34C","#39B7C4","#E87BAF","#8BAE4C","#C46B3C"];
+
+  function newRow(ref, length, width, height, qty){
+    rowIdCounter++;
+    return { id: rowIdCounter, ref: ref || ("Palette " + rowIdCounter), length: length||120, width: width||80, height: height||100, qty: qty||1 };
+  }
+
+  function renderTable(){
+    const body = document.getElementById('palletBody');
+    body.innerHTML = "";
+    pallets.forEach((p, idx) => {
+      const tr = document.createElement('tr');
+      const color = COLORS[idx % COLORS.length];
+      tr.innerHTML = `
+        <td><span class="swatch" style="background:${color}"></span></td>
+        <td><input type="text" data-field="ref" style="width:80px" value="${escapeAttr(p.ref)}"/></td>
+        <td><input type="number" data-field="length" style="width:56px" value="${p.length}"/></td>
+        <td><input type="number" data-field="width" style="width:56px" value="${p.width}"/></td>
+        <td><input type="number" data-field="height" style="width:56px" value="${p.height}"/></td>
+        <td><input type="number" data-field="qty" style="width:44px" value="${p.qty}"/></td>
+        <td><button class="del-btn" title="Supprimer">✕</button></td>
+      `;
+      tr.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const field = inp.getAttribute('data-field');
+          p[field] = (field === 'ref') ? inp.value : parseFloat(inp.value) || 0;
+        });
+      });
+      tr.querySelector('.del-btn').addEventListener('click', () => {
+        pallets = pallets.filter(x => x.id !== p.id);
+        renderTable();
+      });
+      body.appendChild(tr);
+    });
+  }
+
+  function escapeAttr(s){
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  document.getElementById('addRowBtn').addEventListener('click', () => {
+    pallets.push(newRow());
+    renderTable();
+  });
+
+  // Seed with an example row so the tool is usable immediately.
+  pallets.push(newRow("EX-001", 120, 80, 100, 6));
+  renderTable();
+
+  /* ---------------------------------------------------------
+   * 2. File import (Excel + Ruby heuristic parser)
+   * --------------------------------------------------------- */
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const importMsg = document.getElementById('importMsg');
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault(); dropzone.classList.remove('drag');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', e => {
+    if (e.target.files.length) handleFile(e.target.files[0]);
+  });
+
+  function setImportMsg(text, kind){
+    importMsg.innerHTML = text ? `<div class="msg ${kind}">${text}</div>` : "";
+  }
+
+  function handleFile(file){
+    const name = file.name.toLowerCase();
+    if (name.endsWith('.rb')){
+      const reader = new FileReader();
+      reader.onload = () => parseRuby(reader.result, file.name);
+      reader.readAsText(file);
+    } else if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')){
+      const reader = new FileReader();
+      reader.onload = () => parseExcel(reader.result, file.name);
+      reader.readAsArrayBuffer(file);
+    } else {
+      setImportMsg("Format non reconnu. Utilisez un fichier .xlsx, .csv ou .rb.", "err");
+    }
+  }
+
+  const HEADER_ALIASES = {
+    ref: ["ref","référence","reference","nom","name","sku","designation","désignation","code"],
+    length: ["longueur","length","l","long","longueur (cm)","length (cm)"],
+    width: ["largeur","width","l2","larg","largeur (cm)","width (cm)"],
+    height: ["hauteur","height","h","hauteur (cm)","height (cm)"],
+    qty: ["qte","qté","quantite","quantité","qty","quantity","nombre","nb"]
+  };
+
+  function normalizeHeader(h){
+    return String(h).trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  }
+
+  function matchHeader(headers){
+    const map = {};
+    headers.forEach((h, idx) => {
+      const norm = normalizeHeader(h);
+      for (const key in HEADER_ALIASES){
+        if (map[key] !== undefined) continue;
+        if (HEADER_ALIASES[key].some(alias => normalizeHeader(alias) === norm)){
+          map[key] = idx;
+        }
+      }
+    });
+    return map;
+  }
+
+  // Detects a unit hint in the header text (m / mm) to convert everything to cm.
+  function unitFactor(headerText){
+    const h = normalizeHeader(headerText);
+    if (h.includes("(mm)")) return 0.1;
+    if (h.includes("(m)")) return 100;
+    return 1; // assume cm by default
+  }
+
+  function parseExcel(arrayBuffer, filename){
+    try{
+      const wb = XLSX.read(arrayBuffer, { type: "array" });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: "" });
+      if (!rows.length){ setImportMsg("Le fichier semble vide.", "err"); return; }
+
+      const headerRow = rows[0];
+      const map = matchHeader(headerRow);
+      if (map.length === undefined && (map.length_ === undefined)) { /* no-op, keep going */ }
+
+      const lFactor = unitFactor(headerRow[map.length] || "");
+      const wFactor = unitFactor(headerRow[map.width] || "");
+      const hFactor = unitFactor(headerRow[map.height] || "");
+
+      const parsed = [];
+      for (let i=1; i<rows.length; i++){
+        const r = rows[i];
+        if (!r || r.every(c => c === "" || c === undefined || c === null)) continue;
+        const ref = map.ref !== undefined ? r[map.ref] : ("Palette " + i);
+        const length = map.length !== undefined ? parseFloat(r[map.length]) * lFactor : NaN;
+        const width = map.width !== undefined ? parseFloat(r[map.width]) * wFactor : NaN;
+        const height = map.height !== undefined ? parseFloat(r[map.height]) * hFactor : NaN;
+        const qty = map.qty !== undefined ? parseFloat(r[map.qty]) : 1;
+        if (isNaN(length) || isNaN(width) || isNaN(height)) continue;
+        parsed.push(newRow(String(ref || ("Palette " + i)), length, width, height, isNaN(qty) || qty <= 0 ? 1 : qty));
+      }
+
+      if (!parsed.length){
+        setImportMsg(`Aucune palette valide détectée dans « ${filename} ». Vérifiez que le fichier contient des colonnes Référence / Longueur / Largeur / Hauteur / Quantité (les dimensions sont supposées en cm sauf indication (m) ou (mm) dans l'en-tête).`, "err");
+        return;
+      }
+      pallets = parsed;
+      renderTable();
+      setImportMsg(`${parsed.length} référence(s) importée(s) depuis « ${filename} ». Vérifiez le tableau avant de générer le plan.`, "info");
+    } catch(err){
+      setImportMsg("Erreur de lecture du fichier Excel : " + err.message, "err");
+    }
+  }
+
+  // Best-effort heuristic parser for SketchUp Ruby scripts.
+  // Ruby is a full programming language: this does NOT execute the script,
+  // it only scans the text for common patterns used to describe pallets
+  // (hash literals / assignments with length, width, height, name, qty keys).
+  function parseRuby(text, filename){
+    const found = [];
+    const keyAliases = {
+      ref: ["name","ref","reference","label","nom"],
+      length: ["length","longueur","l"],
+      width: ["width","largeur","w"],
+      height: ["height","hauteur","h"],
+      qty: ["qty","quantity","quantite","count","nb"]
+    };
+
+    // Match hash-literal blocks: { name: "P1", length: 120, width: 80, height: 100, qty: 4 }
+    const hashRegex = /\{([^{}]*)\}/g;
+    let m;
+    while ((m = hashRegex.exec(text)) !== null){
+      const body = m[1];
+      const entry = {};
+      const pairRegex = /([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=>|:)\s*("([^"]*)"|'([^']*)'|(-?\d+(?:\.\d+)?))/g;
+      let pm;
+      let any = false;
+      while ((pm = pairRegex.exec(body)) !== null){
+        const key = normalizeHeader(pm[1]);
+        const val = pm[3] !== undefined ? pm[3] : (pm[4] !== undefined ? pm[4] : parseFloat(pm[5]));
+        for (const field in keyAliases){
+          if (keyAliases[field].includes(key)){ entry[field] = val; any = true; }
+        }
+      }
+      if (any && entry.length !== undefined && entry.width !== undefined && entry.height !== undefined){
+        found.push(entry);
+      }
+    }
+
+    if (!found.length){
+      setImportMsg(`Impossible d'extraire automatiquement des palettes depuis « ${filename} ». Les fichiers Ruby SketchUp sont du code arbitraire : seuls les blocs de type { name: "...", length: .., width: .., height: .., qty: .. } sont reconnus. Ajoutez ou corrigez les palettes manuellement dans le tableau ci-dessus.`, "warn");
+      return;
+    }
+
+    pallets = found.map((e, i) => newRow(
+      e.ref !== undefined ? String(e.ref) : ("Palette " + (i+1)),
+      parseFloat(e.length) || 120,
+      parseFloat(e.width) || 80,
+      parseFloat(e.height) || 100,
+      parseFloat(e.qty) || 1
+    ));
+    renderTable();
+    setImportMsg(`${pallets.length} référence(s) extraite(s) de « ${filename} » (extraction heuristique). Vérifiez attentivement le tableau avant de générer le plan.`, "warn");
+  }
+
+  /* ---------------------------------------------------------
+   * 3. Truck length UI
+   * --------------------------------------------------------- */
+  const truckLengthSelect = document.getElementById('truckLength');
+  const customLengthField = document.getElementById('customLengthField');
+  truckLengthSelect.addEventListener('change', () => {
+    customLengthField.style.display = truckLengthSelect.value === 'custom' ? 'block' : 'none';
+  });
+
+  function getTruckDims(){
+    const lengthM = truckLengthSelect.value === 'custom'
+      ? parseFloat(document.getElementById('customLength').value) || 13.6
+      : parseFloat(truckLengthSelect.value);
+    const widthM = parseFloat(document.getElementById('truckWidth').value) || 2.45;
+    const heightM = parseFloat(document.getElementById('truckHeight').value) || 2.6;
+    return { length: lengthM * 100, width: widthM * 100, height: heightM * 100 }; // cm
+  }
+
+  /* ---------------------------------------------------------
+   * 4. Packing algorithm (shelf-based heuristic, in cm)
+   *    Truck axes: X = length, Y = height, Z = width
+   * --------------------------------------------------------- */
+  function computePackingPlan(truck){
+    // Expand each pallet type into individual units, but keep type info for
+    // stacking (only identical-footprint units are stacked on top of each other).
+    const types = pallets.filter(p => p.length > 0 && p.width > 0 && p.height > 0 && p.qty > 0);
+
+    const slots = []; // one "footprint slot" per column of stacked pallets
+    types.forEach((type, typeIdx) => {
+      const layers = Math.max(1, Math.floor(truck.height / type.height));
+      const slotsNeeded = Math.ceil(type.qty / layers);
+      let remainingQty = type.qty;
+      for (let s = 0; s < slotsNeeded; s++){
+        const countInSlot = Math.min(layers, remainingQty);
+        remainingQty -= countInSlot;
+        slots.push({
+          type, typeIdx,
+          footprintLength: type.length,
+          footprintWidth: type.width,
+          unitHeight: type.height,
+          count: countInSlot
+        });
+      }
+    });
+
+    // Sort largest footprint first for a tighter shelf packing.
+    slots.sort((a,b) => (b.footprintLength*b.footprintWidth) - (a.footprintLength*a.footprintWidth));
+
+    const placed = [];
+    const overflow = [];
+
+    let cursorX = 0;      // current row start along truck length
+    let rowDepth = 0;     // length used by the tallest (in X) item in this row
+    let cursorZ = 0;      // current position across truck width within the row
+
+    slots.forEach(slot => {
+      if (slot.footprintWidth > truck.width + 1e-6 || slot.footprintLength > truck.length + 1e-6){
+        overflow.push(slot);
+        return;
+      }
+      // Start a new row if this slot doesn't fit across remaining width.
+      if (cursorZ + slot.footprintWidth > truck.width + 1e-6){
+        cursorX += rowDepth;
+        cursorZ = 0;
+        rowDepth = 0;
+      }
+      // Start a new row if width fits but we haven't placed anything yet in this row and length doesn't fit -> overflow.
+      if (cursorX + slot.footprintLength > truck.length + 1e-6){
+        overflow.push(slot);
+        return;
+      }
+      for (let layer = 0; layer < slot.count; layer++){
+        placed.push({
+          ref: slot.type.ref,
+          typeIdx: slot.typeIdx,
+          x: cursorX, z: cursorZ, y: layer * slot.unitHeight,
+          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight,
+          isTop: layer === slot.count - 1
+        });
+      }
+      cursorZ += slot.footprintWidth;
+      rowDepth = Math.max(rowDepth, slot.footprintLength);
+    });
+
+    const usedLength = placed.length ? Math.max(...placed.map(p => p.x + p.length)) : 0;
+    const totalTruckVolume = truck.length * truck.width * truck.height;
+    const usedVolume = placed.reduce((sum,p) => sum + p.length*p.width*p.height, 0);
+
+    return {
+      placed, overflow, usedLength,
+      fillRatio: totalTruckVolume > 0 ? usedVolume / totalTruckVolume : 0,
+      totalUnits: types.reduce((s,t) => s + t.qty, 0),
+      placedUnits: placed.length
+    };
+  }
+
+  /* ---------------------------------------------------------
+   * 5. Three.js scene
+   * --------------------------------------------------------- */
+  let renderer, scene, camera, controls, truckGroup, cratesGroup;
+  const canvasHolder = document.getElementById('canvas-holder');
+
+  function initScene(){
+    if (renderer) return;
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b0e08);
+
+    camera = new THREE.PerspectiveCamera(50, canvasHolder.clientWidth / canvasHolder.clientHeight, 1, 5000);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(canvasHolder.clientWidth, canvasHolder.clientHeight);
+    canvasHolder.appendChild(renderer.domElement);
+
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.7);
+    dir.position.set(300, 500, 200);
+    scene.add(dir);
+    const dir2 = new THREE.DirectionalLight(0xffffff, 0.35);
+    dir2.position.set(-300, 200, -400);
+    scene.add(dir2);
+
+    window.addEventListener('resize', onResize);
+    animate();
+  }
+
+  function onResize(){
+    if (!renderer) return;
+    camera.aspect = canvasHolder.clientWidth / canvasHolder.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(canvasHolder.clientWidth, canvasHolder.clientHeight);
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    if (controls) controls.update();
+    if (renderer) renderer.render(scene, camera);
+  }
+
+  function makeLabelSprite(text, colorHex){
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const fontSize = 42;
+    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+    const padding = 16;
+    const textWidth = ctx.measureText(text).width;
+    canvas.width = textWidth + padding*2;
+    canvas.height = fontSize + padding*2;
+
+    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = "rgba(12,15,10,0.85)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle = colorHex;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(2,2,canvas.width-4,canvas.height-4);
+    ctx.fillStyle = "#F4F1EC";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText(text, canvas.width/2, canvas.height/2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+    const sprite = new THREE.Sprite(material);
+    const scale = 0.3; // world units (cm) per label pixel
+    sprite.scale.set(canvas.width*scale, canvas.height*scale, 1);
+    return sprite;
+  }
+
+  function clearGroup(group){
+    if (!group) return;
+    while (group.children.length) group.remove(group.children[0]);
+  }
+
+  function buildScene(truck, plan){
+    initScene();
+
+    if (truckGroup) scene.remove(truckGroup);
+    if (cratesGroup) scene.remove(cratesGroup);
+    truckGroup = new THREE.Group();
+    cratesGroup = new THREE.Group();
+    scene.add(truckGroup);
+    scene.add(cratesGroup);
+
+    // Truck floor + translucent walls (X=length, Y=height, Z=width)
+    const floorGeo = new THREE.BoxGeometry(truck.length, 4, truck.width);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x2a3324, metalness:0.1, roughness:0.9 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.position.set(truck.length/2, -2, truck.width/2);
+    truckGroup.add(floor);
+
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x8fbfa8, transparent:true, opacity:0.08, side: THREE.DoubleSide });
+    const shellGeo = new THREE.BoxGeometry(truck.length, truck.height, truck.width);
+    const shellEdges = new THREE.EdgesGeometry(shellGeo);
+    const shellLine = new THREE.LineSegments(shellEdges, new THREE.LineBasicMaterial({ color: 0x52B788, transparent:true, opacity:0.6 }));
+    shellLine.position.set(truck.length/2, truck.height/2, truck.width/2);
+    truckGroup.add(shellLine);
+    const shell = new THREE.Mesh(shellGeo, wallMat);
+    shell.position.set(truck.length/2, truck.height/2, truck.width/2);
+    truckGroup.add(shell);
+
+    // Crates
+    plan.placed.forEach(p => {
+      const color = new THREE.Color(COLORS[p.typeIdx % COLORS.length]);
+      const geo = new THREE.BoxGeometry(p.length, p.height, p.width);
+      const mat = new THREE.MeshStandardMaterial({ color, metalness:0.05, roughness:0.75 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(p.x + p.length/2, p.y + p.height/2, p.z + p.width/2);
+      cratesGroup.add(mesh);
+
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0c0f0a }));
+      line.position.copy(mesh.position);
+      cratesGroup.add(line);
+
+      if (p.isTop){
+        const label = makeLabelSprite(p.ref, COLORS[p.typeIdx % COLORS.length]);
+        label.position.set(p.x + p.length/2, p.y + p.height + 14, p.z + p.width/2);
+        cratesGroup.add(label);
+      }
+    });
+
+    // Camera framing: fit the whole truck bounding box in view from a 3/4 angle,
+    // regardless of how full it is, using the camera's vertical FOV.
+    const center = new THREE.Vector3(truck.length/2, truck.height/2, truck.width/2);
+    const radius = 0.5 * Math.sqrt(truck.length**2 + truck.width**2 + truck.height**2);
+    const fitDistance = (radius / Math.sin((camera.fov/2) * Math.PI/180)) * 1.15;
+    const dir = new THREE.Vector3(0.9, 0.55, 1.1).normalize();
+    camera.position.copy(center).addScaledVector(dir, fitDistance);
+    camera.near = Math.max(1, fitDistance/100);
+    camera.far = fitDistance*10;
+    camera.updateProjectionMatrix();
+    controls.target.copy(center);
+    controls.update();
+  }
+
+  /* ---------------------------------------------------------
+   * 6. Generate button
+   * --------------------------------------------------------- */
+  const genMsg = document.getElementById('genMsg');
+  const viewerEmpty = document.getElementById('viewerEmpty');
+  const legendEl = document.getElementById('legend');
+  const toolbarEl = document.getElementById('viewerToolbar');
+  const statsBarEl = document.getElementById('statsBar');
+  let lastPlan = null, lastTruck = null;
+
+  document.getElementById('generateBtn').addEventListener('click', () => {
+    const valid = pallets.filter(p => p.length > 0 && p.width > 0 && p.height > 0 && p.qty > 0);
+    if (!valid.length){
+      genMsg.innerHTML = `<div class="msg err">Ajoutez au moins une palette avec des dimensions valides.</div>`;
+      return;
+    }
+    const truck = getTruckDims();
+    if (truck.length <= 0 || truck.width <= 0 || truck.height <= 0){
+      genMsg.innerHTML = `<div class="msg err">Dimensions du camion invalides.</div>`;
+      return;
+    }
+
+    const plan = computePackingPlan(truck);
+    lastPlan = plan; lastTruck = truck;
+
+    buildScene(truck, plan);
+    viewerEmpty.style.display = 'none';
+    legendEl.style.display = 'block';
+    toolbarEl.style.display = 'flex';
+    statsBarEl.style.display = 'flex';
+
+    // Legend
+    const uniqueTypes = [];
+    pallets.forEach((p, idx) => { if (p.qty > 0) uniqueTypes.push({ ref: p.ref, idx }); });
+    legendEl.innerHTML = uniqueTypes.map(t => `<div><span class="swatch" style="background:${COLORS[t.idx % COLORS.length]}"></span>${escapeAttr(t.ref)}</div>`).join("");
+
+    // Stats
+    const usedLengthM = (plan.usedLength/100).toFixed(2);
+    const truckLengthM = (truck.length/100).toFixed(2);
+    const fillPct = (plan.fillRatio*100).toFixed(1);
+    statsBarEl.innerHTML = `
+      <div>Palettes placées : <b>${plan.placedUnits} / ${plan.totalUnits}</b></div>
+      <div>Longueur utilisée : <b>${usedLengthM} m / ${truckLengthM} m</b></div>
+      <div>Remplissage volumique : <b>${fillPct} %</b></div>
+    `;
+
+    if (plan.overflow.length){
+      const missing = plan.overflow.reduce((s,o)=>s+o.count,0);
+      genMsg.innerHTML = `<div class="msg warn">${missing} palette(s) ne rentrent pas dans ce camion et n'ont pas été placées. Essayez un camion plus long ou réduisez les quantités.</div>`;
+    } else {
+      genMsg.innerHTML = `<div class="msg info">Plan généré avec succès. Faites pivoter la vue avec la souris.</div>`;
+    }
+  });
+
+  /* ---------------------------------------------------------
+   * 7. Export (image + print)
+   * --------------------------------------------------------- */
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if (!renderer) return;
+    renderer.render(scene, camera);
+    const dataUrl = renderer.domElement.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = 'plan-de-chargement.png';
+    a.click();
+  });
+
+  document.getElementById('printBtn').addEventListener('click', () => {
+    if (!renderer || !lastPlan) return;
+    renderer.render(scene, camera);
+    const dataUrl = renderer.domElement.toDataURL('image/png');
+    document.getElementById('printImage').src = dataUrl;
+    document.getElementById('printTruckInfo').textContent =
+      `${(lastTruck.length/100).toFixed(2)} m x ${(lastTruck.width/100).toFixed(2)} m x ${(lastTruck.height/100).toFixed(2)} m`;
+
+    const table = document.getElementById('printTable');
+    let html = `<tr><th>Référence</th><th>Longueur (cm)</th><th>Largeur (cm)</th><th>Hauteur (cm)</th><th>Position X</th><th>Position Y (hauteur)</th><th>Position Z</th></tr>`;
+    lastPlan.placed.forEach(p => {
+      html += `<tr><td>${escapeAttr(p.ref)}</td><td>${p.length}</td><td>${p.width}</td><td>${p.height}</td><td>${p.x.toFixed(0)}</td><td>${p.y.toFixed(0)}</td><td>${p.z.toFixed(0)}</td></tr>`;
+    });
+    table.innerHTML = html;
+
+    window.print();
+  });
+
+})();
+</script>
+</body>
+</html>

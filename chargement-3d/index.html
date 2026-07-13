@@ -369,7 +369,9 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
   // are the length/width/height dimensions by finding the first three columns
   // that are numeric on (almost) every row, and folds every other cell in the
   // row (numeric or text) into the reference label.
-  function parsePositional(rows, defaultUnitFactor){
+  // manualUnitFactor: a factor forced by the user's dropdown, or null to
+  // auto-detect the unit from the magnitude of the dimension values.
+  function parsePositional(rows, manualUnitFactor){
     const maxCols = rows.reduce((m,r) => Math.max(m, r.length), 0);
     const numericFraction = [];
     for (let c=0; c<maxCols; c++){
@@ -386,7 +388,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     for (let c=0; c<maxCols && dimCols.length<3; c++){
       if (numericFraction[c] > 0.6) dimCols.push(c);
     }
-    if (dimCols.length < 3) return [];
+    if (dimCols.length < 3) return { parsed: [], unitFactor: manualUnitFactor };
 
     // Only fold columns that are consistently filled across rows into the
     // reference label — excludes one-off notes/comments/helper cells that
@@ -402,12 +404,27 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       if (!dimCols.includes(c) && fillFraction[c] > 0.5) refCols.push(c);
     }
 
+    let unitFactor = manualUnitFactor;
+    if (unitFactor === null){
+      // Auto-detect from the typical magnitude of the dimension values: real
+      // pallets are a few tens to a couple hundred cm on a side, so values
+      // consistently in the thousands are almost certainly millimeters.
+      const vals = [];
+      rows.forEach(r => dimCols.forEach(c => {
+        const n = parseFloat(r[c]);
+        if (!isNaN(n) && isFinite(n)) vals.push(n);
+      }));
+      vals.sort((a,b) => a-b);
+      const median = vals.length ? vals[Math.floor(vals.length/2)] : 0;
+      unitFactor = median >= 300 ? 0.1 : (median > 0 && median <= 3 ? 100 : 1);
+    }
+
     const parsed = [];
     rows.forEach((r, i) => {
       if (!r || r.every(c => c === "" || c === undefined || c === null)) return;
-      const length = parseFloat(r[dimCols[0]]) * defaultUnitFactor;
-      const width = parseFloat(r[dimCols[1]]) * defaultUnitFactor;
-      const height = parseFloat(r[dimCols[2]]) * defaultUnitFactor;
+      const length = parseFloat(r[dimCols[0]]) * unitFactor;
+      const width = parseFloat(r[dimCols[1]]) * unitFactor;
+      const height = parseFloat(r[dimCols[2]]) * unitFactor;
       if (isNaN(length) || isNaN(width) || isNaN(height) || length<=0 || width<=0 || height<=0) return;
       const refParts = refCols
         .map(c => r[c])
@@ -416,7 +433,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       const ref = refParts.length ? refParts.join(" ") : ("Palette " + (i+1));
       parsed.push(newRow(ref, length, width, height, 1));
     });
-    return parsed;
+    return { parsed, unitFactor };
   }
 
   function parseExcel(arrayBuffer, filename){
@@ -426,7 +443,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: "" });
       if (!rows.length){ setImportMsg("Le fichier semble vide.", "err"); return; }
 
-      const defaultUnitFactor = parseFloat(document.getElementById('importUnit').value) || 1;
+      const importUnitSelect = document.getElementById('importUnit');
+      const defaultUnitFactor = parseFloat(importUnitSelect.value) || 1;
       const headerRow = rows[0];
       const map = matchHeader(headerRow);
 
@@ -451,9 +469,20 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       }
 
       let usedPositional = false;
+      let autoDetectedUnit = false;
       if (!parsed.length){
-        parsed = parsePositional(rows, defaultUnitFactor);
+        // Leaving the unit dropdown on its default ("cm") means the user hasn't
+        // made an explicit choice, so auto-detect from the data instead of
+        // silently assuming cm (headerless files can't state their own unit).
+        const manualUnitFactor = importUnitSelect.value !== "1" ? defaultUnitFactor : null;
+        const result = parsePositional(rows, manualUnitFactor);
+        parsed = result.parsed;
         usedPositional = parsed.length > 0;
+        if (usedPositional && manualUnitFactor === null){
+          autoDetectedUnit = true;
+          const opt = Array.from(importUnitSelect.options).find(o => parseFloat(o.value) === result.unitFactor);
+          if (opt) importUnitSelect.value = opt.value;
+        }
       }
 
       if (!parsed.length){
@@ -463,8 +492,11 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       pallets = parsed;
       renderTable();
       if (usedPositional){
-        const unitLabel = document.getElementById('importUnit').selectedOptions[0].text;
-        setImportMsg(`${parsed.length} ligne(s) importée(s) depuis « ${filename} » sans en-tête reconnu : les 3 premières colonnes numériques ont été prises comme longueur/largeur/hauteur (unité : ${unitLabel}), le reste de chaque ligne comme référence, quantité fixée à 1. Vérifiez et corrigez le tableau si besoin.`, "warn");
+        const unitLabel = importUnitSelect.selectedOptions[0].text;
+        const unitNote = autoDetectedUnit
+          ? `unité détectée automatiquement : ${unitLabel} — changez le menu déroulant puis réimportez si ce n'est pas ça`
+          : `unité choisie : ${unitLabel}`;
+        setImportMsg(`${parsed.length} ligne(s) importée(s) depuis « ${filename} » sans en-tête reconnu : les 3 premières colonnes numériques ont été prises comme longueur/largeur/hauteur (${unitNote}), le reste de chaque ligne comme référence, quantité fixée à 1. Vérifiez et corrigez le tableau si besoin.`, "warn");
       } else {
         setImportMsg(`${parsed.length} référence(s) importée(s) depuis « ${filename} ». Vérifiez le tableau avant de générer le plan.`, "info");
       }

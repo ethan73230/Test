@@ -20,8 +20,8 @@ depuis ce dossier), puis :
 
 ## Format du fichier Excel
 
-La première ligne doit contenir des en-têtes. Les intitulés suivants (accents
-et casse ignorés) sont reconnus automatiquement :
+**Avec en-têtes** — si la première ligne contient des intitulés de colonnes,
+les libellés suivants (accents et casse ignorés) sont reconnus automatiquement :
 
 | Champ      | En-têtes acceptés                                            |
 |------------|---------------------------------------------------------------|
@@ -33,6 +33,18 @@ et casse ignorés) sont reconnus automatiquement :
 
 Les dimensions sont supposées en **centimètres**. Ajoutez `(m)` ou `(mm)` dans
 l'intitulé de la colonne pour indiquer une autre unité (ex : `Longueur (m)`).
+
+**Sans en-têtes** — si aucune ligne ne correspond à ces libellés (fichier de
+données brutes, comme un export sans titres de colonnes), l'outil bascule
+automatiquement sur une détection positionnelle : les 3 premières colonnes
+numériques sur (presque) toutes les lignes sont prises comme longueur /
+largeur / hauteur, et le reste de chaque ligne (texte ou nombre, à condition
+d'être rempli sur plus de la moitié des lignes — ce qui exclut les notes ou
+cellules isolées ailleurs dans la feuille) est concaténé pour former la
+référence. La quantité est alors fixée à 1 par palette (à corriger dans le
+tableau si besoin). Dans ce mode, l'unité des dimensions est celle choisie
+dans le menu déroulant **« Unité des dimensions dans le fichier »** à côté de
+la zone de dépôt (cm par défaut).
 
 ## Fichiers Ruby (SketchUp)
 
@@ -63,7 +75,7 @@ trop court/étroit) sont signalées dans un message d'avertissement.
 
 ## Dépendances
 
-Toutes les bibliothèques sont chargées via CDN, aucune installation n'est
-nécessaire :
-- [Three.js](https://threejs.org/) (rendu 3D + `OrbitControls`)
+Toutes les bibliothèques sont fournies localement dans `vendor/` (aucune
+connexion internet requise) :
+- [Three.js](https://threejs.org/) + `OrbitControls` (rendu 3D)
 - [SheetJS (xlsx)](https://sheetjs.com/) (lecture des fichiers Excel/CSV)

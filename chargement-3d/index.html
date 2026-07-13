@@ -144,6 +144,14 @@
         <div>Glissez-déposez un fichier <strong>Excel (.xlsx, .xlsm, .xls, .csv)</strong> ou <strong>Ruby (.rb)</strong> ici,<br/>ou cliquez pour parcourir.</div>
       </div>
       <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv,.rb" />
+      <div class="field" style="margin-top:10px;">
+        <label>Unité des dimensions dans le fichier (si l'en-tête ne le précise pas)</label>
+        <select id="importUnit">
+          <option value="1">cm</option>
+          <option value="0.1">mm</option>
+          <option value="100">m</option>
+        </select>
+      </div>
       <div id="importMsg"></div>
     </div>
 
@@ -341,12 +349,74 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     return map;
   }
 
-  // Detects a unit hint in the header text (m / mm) to convert everything to cm.
+  // Detects a unit hint in the header text (m / mm). Returns 0 (falsy) when
+  // no hint is found, so callers can fall back to the user-selected default unit.
   function unitFactor(headerText){
-    const h = normalizeHeader(headerText);
+    const h = normalizeHeader(headerText || "");
     if (h.includes("(mm)")) return 0.1;
     if (h.includes("(m)")) return 100;
-    return 1; // assume cm by default
+    return 0;
+  }
+
+  function isNumericCell(v){
+    if (v === "" || v === undefined || v === null) return false;
+    if (typeof v === "number") return isFinite(v);
+    const n = parseFloat(v);
+    return !isNaN(n) && isFinite(n) && /^-?\d+([.,]\d+)?$/.test(String(v).trim());
+  }
+
+  // Fallback for sheets with no recognizable header row: guesses which columns
+  // are the length/width/height dimensions by finding the first three columns
+  // that are numeric on (almost) every row, and folds every other cell in the
+  // row (numeric or text) into the reference label.
+  function parsePositional(rows, defaultUnitFactor){
+    const maxCols = rows.reduce((m,r) => Math.max(m, r.length), 0);
+    const numericFraction = [];
+    for (let c=0; c<maxCols; c++){
+      let num = 0, total = 0;
+      rows.forEach(r => {
+        const v = r[c];
+        if (v === "" || v === undefined || v === null) return;
+        total++;
+        if (isNumericCell(v)) num++;
+      });
+      numericFraction.push(total ? num/total : 0);
+    }
+    const dimCols = [];
+    for (let c=0; c<maxCols && dimCols.length<3; c++){
+      if (numericFraction[c] > 0.6) dimCols.push(c);
+    }
+    if (dimCols.length < 3) return [];
+
+    // Only fold columns that are consistently filled across rows into the
+    // reference label — excludes one-off notes/comments/helper cells that
+    // happen to sit in a stray column on a single row (e.g. instructions).
+    const fillFraction = [];
+    for (let c=0; c<maxCols; c++){
+      let filled = 0;
+      rows.forEach(r => { if (r[c] !== "" && r[c] !== undefined && r[c] !== null) filled++; });
+      fillFraction.push(rows.length ? filled/rows.length : 0);
+    }
+    const refCols = [];
+    for (let c=0; c<maxCols; c++){
+      if (!dimCols.includes(c) && fillFraction[c] > 0.5) refCols.push(c);
+    }
+
+    const parsed = [];
+    rows.forEach((r, i) => {
+      if (!r || r.every(c => c === "" || c === undefined || c === null)) return;
+      const length = parseFloat(r[dimCols[0]]) * defaultUnitFactor;
+      const width = parseFloat(r[dimCols[1]]) * defaultUnitFactor;
+      const height = parseFloat(r[dimCols[2]]) * defaultUnitFactor;
+      if (isNaN(length) || isNaN(width) || isNaN(height) || length<=0 || width<=0 || height<=0) return;
+      const refParts = refCols
+        .map(c => r[c])
+        .filter(v => v !== "" && v !== undefined && v !== null)
+        .map(v => String(v).trim());
+      const ref = refParts.length ? refParts.join(" ") : ("Palette " + (i+1));
+      parsed.push(newRow(ref, length, width, height, 1));
+    });
+    return parsed;
   }
 
   function parseExcel(arrayBuffer, filename){
@@ -356,34 +426,48 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: "" });
       if (!rows.length){ setImportMsg("Le fichier semble vide.", "err"); return; }
 
+      const defaultUnitFactor = parseFloat(document.getElementById('importUnit').value) || 1;
       const headerRow = rows[0];
       const map = matchHeader(headerRow);
-      if (map.length === undefined && (map.length_ === undefined)) { /* no-op, keep going */ }
 
-      const lFactor = unitFactor(headerRow[map.length] || "");
-      const wFactor = unitFactor(headerRow[map.width] || "");
-      const hFactor = unitFactor(headerRow[map.height] || "");
+      let parsed = [];
+      const headerModeAvailable = map.length !== undefined && map.width !== undefined && map.height !== undefined;
 
-      const parsed = [];
-      for (let i=1; i<rows.length; i++){
-        const r = rows[i];
-        if (!r || r.every(c => c === "" || c === undefined || c === null)) continue;
-        const ref = map.ref !== undefined ? r[map.ref] : ("Palette " + i);
-        const length = map.length !== undefined ? parseFloat(r[map.length]) * lFactor : NaN;
-        const width = map.width !== undefined ? parseFloat(r[map.width]) * wFactor : NaN;
-        const height = map.height !== undefined ? parseFloat(r[map.height]) * hFactor : NaN;
-        const qty = map.qty !== undefined ? parseFloat(r[map.qty]) : 1;
-        if (isNaN(length) || isNaN(width) || isNaN(height)) continue;
-        parsed.push(newRow(String(ref || ("Palette " + i)), length, width, height, isNaN(qty) || qty <= 0 ? 1 : qty));
+      if (headerModeAvailable){
+        const lFactor = unitFactor(headerRow[map.length]) || defaultUnitFactor;
+        const wFactor = unitFactor(headerRow[map.width]) || defaultUnitFactor;
+        const hFactor = unitFactor(headerRow[map.height]) || defaultUnitFactor;
+        for (let i=1; i<rows.length; i++){
+          const r = rows[i];
+          if (!r || r.every(c => c === "" || c === undefined || c === null)) continue;
+          const ref = map.ref !== undefined ? r[map.ref] : ("Palette " + i);
+          const length = parseFloat(r[map.length]) * lFactor;
+          const width = parseFloat(r[map.width]) * wFactor;
+          const height = parseFloat(r[map.height]) * hFactor;
+          const qty = map.qty !== undefined ? parseFloat(r[map.qty]) : 1;
+          if (isNaN(length) || isNaN(width) || isNaN(height)) continue;
+          parsed.push(newRow(String(ref || ("Palette " + i)), length, width, height, isNaN(qty) || qty <= 0 ? 1 : qty));
+        }
+      }
+
+      let usedPositional = false;
+      if (!parsed.length){
+        parsed = parsePositional(rows, defaultUnitFactor);
+        usedPositional = parsed.length > 0;
       }
 
       if (!parsed.length){
-        setImportMsg(`Aucune palette valide détectée dans « ${filename} ». Vérifiez que le fichier contient des colonnes Référence / Longueur / Largeur / Hauteur / Quantité (les dimensions sont supposées en cm sauf indication (m) ou (mm) dans l'en-tête).`, "err");
+        setImportMsg(`Aucune palette valide détectée dans « ${filename} ». Le fichier doit contenir, par ligne, au moins trois valeurs numériques (longueur / largeur / hauteur), avec ou sans en-têtes de colonnes.`, "err");
         return;
       }
       pallets = parsed;
       renderTable();
-      setImportMsg(`${parsed.length} référence(s) importée(s) depuis « ${filename} ». Vérifiez le tableau avant de générer le plan.`, "info");
+      if (usedPositional){
+        const unitLabel = document.getElementById('importUnit').selectedOptions[0].text;
+        setImportMsg(`${parsed.length} ligne(s) importée(s) depuis « ${filename} » sans en-tête reconnu : les 3 premières colonnes numériques ont été prises comme longueur/largeur/hauteur (unité : ${unitLabel}), le reste de chaque ligne comme référence, quantité fixée à 1. Vérifiez et corrigez le tableau si besoin.`, "warn");
+      } else {
+        setImportMsg(`${parsed.length} référence(s) importée(s) depuis « ${filename} ». Vérifiez le tableau avant de générer le plan.`, "info");
+      }
     } catch(err){
       setImportMsg("Erreur de lecture du fichier Excel : " + err.message, "err");
     }

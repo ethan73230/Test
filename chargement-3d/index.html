@@ -580,7 +580,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
    * --------------------------------------------------------- */
   function computePackingPlan(truck){
     // Expand each pallet type into individual units, but keep type info for
-    // stacking (only identical-footprint units are stacked on top of each other).
+    // stacking (only identical-footprint units are stacked on top of each other
+    // at this stage — mixed-shape stacking happens in the second pass below).
     const types = pallets.filter(p => p.length > 0 && p.width > 0 && p.height > 0 && p.qty > 0);
 
     const slots = []; // one "footprint slot" per column of stacked pallets
@@ -605,25 +606,72 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     slots.sort((a,b) => (b.footprintLength*b.footprintWidth) - (a.footprintLength*a.footprintWidth));
 
     const placed = [];
-    const overflow = [];
+    const floorOverflow = [];
 
-    let cursorX = 0;      // current row start along truck length
-    let rowDepth = 0;     // length used by the tallest (in X) item in this row
-    let cursorZ = 0;      // current position across truck width within the row
+    // Floor pass: every row started so far stays a candidate for later, smaller
+    // items instead of only ever extending the newest row — this fills the
+    // leftover width of earlier rows instead of wasting it.
+    const rows = []; // {xStart, rowLength, usedWidth}
 
     slots.forEach(slot => {
       if (slot.footprintWidth > truck.width + 1e-6 || slot.footprintLength > truck.length + 1e-6){
-        overflow.push(slot);
+        floorOverflow.push(slot);
         return;
       }
-      // Start a new row if this slot doesn't fit across remaining width.
-      if (cursorZ + slot.footprintWidth > truck.width + 1e-6){
-        cursorX += rowDepth;
-        cursorZ = 0;
-        rowDepth = 0;
+      let bestRow = null, bestLeftover = Infinity;
+      rows.forEach(row => {
+        if (slot.footprintLength <= row.rowLength + 1e-6 && row.usedWidth + slot.footprintWidth <= truck.width + 1e-6){
+          const leftover = truck.width - (row.usedWidth + slot.footprintWidth);
+          if (leftover < bestLeftover){ bestLeftover = leftover; bestRow = row; }
+        }
+      });
+      if (!bestRow){
+        const xStart = rows.length ? Math.max(...rows.map(r => r.xStart + r.rowLength)) : 0;
+        if (xStart + slot.footprintLength > truck.length + 1e-6){
+          floorOverflow.push(slot);
+          return;
+        }
+        bestRow = { xStart, rowLength: slot.footprintLength, usedWidth: 0 };
+        rows.push(bestRow);
       }
-      // Start a new row if width fits but we haven't placed anything yet in this row and length doesn't fit -> overflow.
-      if (cursorX + slot.footprintLength > truck.length + 1e-6){
+      for (let layer = 0; layer < slot.count; layer++){
+        placed.push({
+          ref: slot.type.ref,
+          typeIdx: slot.typeIdx,
+          x: bestRow.xStart, z: bestRow.usedWidth, y: layer * slot.unitHeight,
+          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight
+        });
+      }
+      bestRow.usedWidth += slot.footprintWidth;
+    });
+
+    // Stacking pass: pallets that didn't fit on the floor get a second chance
+    // on top of any already-placed footprint that's big enough to hold them
+    // and still has height budget left, even if the shapes don't match —
+    // this is what lets short, unrelated items ride on top of taller ones
+    // instead of the truck reporting unused height as "doesn't fit".
+    const columns = new Map(); // key "x_z" -> {x,z,length,width,topHeight}
+    placed.forEach(p => {
+      const key = p.x + '_' + p.z;
+      const top = p.y + p.height;
+      const existing = columns.get(key);
+      if (!existing || existing.topHeight < top){
+        columns.set(key, { x: p.x, z: p.z, length: p.length, width: p.width, topHeight: top });
+      }
+    });
+
+    const overflow = [];
+    floorOverflow.forEach(slot => {
+      const stackHeight = slot.unitHeight * slot.count;
+      let bestCol = null, bestWaste = Infinity;
+      columns.forEach(col => {
+        if (slot.footprintLength <= col.length + 1e-6 && slot.footprintWidth <= col.width + 1e-6 &&
+            col.topHeight + stackHeight <= truck.height + 1e-6){
+          const waste = truck.height - (col.topHeight + stackHeight);
+          if (waste < bestWaste){ bestWaste = waste; bestCol = col; }
+        }
+      });
+      if (!bestCol){
         overflow.push(slot);
         return;
       }
@@ -631,13 +679,25 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
         placed.push({
           ref: slot.type.ref,
           typeIdx: slot.typeIdx,
-          x: cursorX, z: cursorZ, y: layer * slot.unitHeight,
-          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight,
-          isTop: layer === slot.count - 1
+          x: bestCol.x, z: bestCol.z, y: bestCol.topHeight + layer * slot.unitHeight,
+          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight
         });
       }
-      cursorZ += slot.footprintWidth;
-      rowDepth = Math.max(rowDepth, slot.footprintLength);
+      bestCol.topHeight += stackHeight;
+    });
+
+    // Derive isTop from final positions (a later stacking pass can put a
+    // different pallet on top of what was previously the top of a column).
+    const topHeightByColumn = new Map();
+    placed.forEach(p => {
+      const key = p.x + '_' + p.z;
+      const top = p.y + p.height;
+      if (!topHeightByColumn.has(key) || topHeightByColumn.get(key) < top){
+        topHeightByColumn.set(key, top);
+      }
+    });
+    placed.forEach(p => {
+      p.isTop = Math.abs((p.y + p.height) - topHeightByColumn.get(p.x + '_' + p.z)) < 1e-6;
     });
 
     const usedLength = placed.length ? Math.max(...placed.map(p => p.x + p.length)) : 0;

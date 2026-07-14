@@ -161,7 +161,7 @@
         <table id="palletTable">
           <thead>
             <tr>
-              <th></th><th>Réf.</th><th>L (cm)</th><th>l (cm)</th><th>H (cm)</th><th>Qté</th><th></th>
+              <th></th><th>Réf.</th><th>L (cm)</th><th>l (cm)</th><th>H (cm)</th><th>Qté</th><th>Poids (kg)</th><th></th>
             </tr>
           </thead>
           <tbody id="palletBody"></tbody>
@@ -235,13 +235,13 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
   /* ---------------------------------------------------------
    * 1. State
    * --------------------------------------------------------- */
-  let pallets = []; // {ref, length, width, height, qty}
+  let pallets = []; // {ref, length, width, height, qty, weight}
   let rowIdCounter = 0;
   const COLORS = ["#52B788","#C77B2E","#4C8FE8","#D9534F","#B08BD9","#E8C34C","#39B7C4","#E87BAF","#8BAE4C","#C46B3C"];
 
-  function newRow(ref, length, width, height, qty){
+  function newRow(ref, length, width, height, qty, weight){
     rowIdCounter++;
-    return { id: rowIdCounter, ref: ref || ("Palette " + rowIdCounter), length: length||120, width: width||80, height: height||100, qty: qty||1 };
+    return { id: rowIdCounter, ref: ref || ("Palette " + rowIdCounter), length: length||120, width: width||80, height: height||100, qty: qty||1, weight: weight||0 };
   }
 
   function renderTable(){
@@ -257,6 +257,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
         <td><input type="number" data-field="width" style="width:56px" value="${p.width}"/></td>
         <td><input type="number" data-field="height" style="width:56px" value="${p.height}"/></td>
         <td><input type="number" data-field="qty" style="width:44px" value="${p.qty}"/></td>
+        <td><input type="number" data-field="weight" style="width:56px" placeholder="?" value="${p.weight || ''}"/></td>
         <td><button class="del-btn" title="Supprimer">✕</button></td>
       `;
       tr.querySelectorAll('input').forEach(inp => {
@@ -328,7 +329,8 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     length: ["longueur","length","l","long","longueur (cm)","length (cm)"],
     width: ["largeur","width","l2","larg","largeur (cm)","width (cm)"],
     height: ["hauteur","height","h","hauteur (cm)","height (cm)"],
-    qty: ["qte","qté","quantite","quantité","qty","quantity","nombre","nb"]
+    qty: ["qte","qté","quantite","quantité","qty","quantity","nombre","nb"],
+    weight: ["poids","weight","masse","mass","kg","poids (kg)","weight (kg)"]
   };
 
   function normalizeHeader(h){
@@ -463,8 +465,9 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
           const width = parseFloat(r[map.width]) * wFactor;
           const height = parseFloat(r[map.height]) * hFactor;
           const qty = map.qty !== undefined ? parseFloat(r[map.qty]) : 1;
+          const weight = map.weight !== undefined ? parseFloat(r[map.weight]) : 0;
           if (isNaN(length) || isNaN(width) || isNaN(height)) continue;
-          parsed.push(newRow(String(ref || ("Palette " + i)), length, width, height, isNaN(qty) || qty <= 0 ? 1 : qty));
+          parsed.push(newRow(String(ref || ("Palette " + i)), length, width, height, isNaN(qty) || qty <= 0 ? 1 : qty, isNaN(weight) || weight < 0 ? 0 : weight));
         }
       }
 
@@ -608,10 +611,23 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     const placed = [];
     const floorOverflow = [];
 
+    // Weight isn't always known (most import sources only give dimensions),
+    // so fall back to volume as a rough proxy — enough to avoid piling all
+    // the bulk at one end, even without real figures.
+    function slotWeight(slot){
+      const perUnit = slot.type.weight > 0 ? slot.type.weight : (slot.footprintLength * slot.footprintWidth * slot.unitHeight) / 1e6;
+      return perUnit * slot.count;
+    }
+
     // Floor pass: every row started so far stays a candidate for later, smaller
     // items instead of only ever extending the newest row — this fills the
-    // leftover width of earlier rows instead of wasting it.
-    const rows = []; // {xStart, rowLength, usedWidth}
+    // leftover width of earlier rows instead of wasting it. New rows alternate
+    // between the front and rear of the truck bed (whichever currently carries
+    // less load) instead of always stacking up from the front, so a load of
+    // wood doesn't end up entirely nose-heavy or tail-heavy.
+    const rows = []; // {xStart, rowLength, usedWidth, side}
+    let frontCursor = 0, backCursor = truck.length;
+    let frontWeight = 0, backWeight = 0;
 
     slots.forEach(slot => {
       if (slot.footprintWidth > truck.width + 1e-6 || slot.footprintLength > truck.length + 1e-6){
@@ -626,23 +642,32 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
         }
       });
       if (!bestRow){
-        const xStart = rows.length ? Math.max(...rows.map(r => r.xStart + r.rowLength)) : 0;
-        if (xStart + slot.footprintLength > truck.length + 1e-6){
-          floorOverflow.push(slot);
-          return;
+        const side = frontWeight <= backWeight ? 'front' : 'back';
+        let xStart;
+        if (side === 'front'){
+          if (frontCursor + slot.footprintLength > backCursor + 1e-6){ floorOverflow.push(slot); return; }
+          xStart = frontCursor;
+          frontCursor += slot.footprintLength;
+        } else {
+          if (backCursor - slot.footprintLength < frontCursor - 1e-6){ floorOverflow.push(slot); return; }
+          xStart = backCursor - slot.footprintLength;
+          backCursor -= slot.footprintLength;
         }
-        bestRow = { xStart, rowLength: slot.footprintLength, usedWidth: 0 };
+        bestRow = { xStart, rowLength: slot.footprintLength, usedWidth: 0, side };
         rows.push(bestRow);
       }
+      const unitWeight = slot.type.weight > 0 ? slot.type.weight : (slot.footprintLength * slot.footprintWidth * slot.unitHeight) / 1e6;
       for (let layer = 0; layer < slot.count; layer++){
         placed.push({
           ref: slot.type.ref,
           typeIdx: slot.typeIdx,
           x: bestRow.xStart, z: bestRow.usedWidth, y: layer * slot.unitHeight,
-          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight
+          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight,
+          weight: unitWeight
         });
       }
       bestRow.usedWidth += slot.footprintWidth;
+      if (bestRow.side === 'front') frontWeight += slotWeight(slot); else backWeight += slotWeight(slot);
     });
 
     // Stacking pass: pallets that didn't fit on the floor get a second chance
@@ -697,12 +722,14 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
         overflow.push(slot);
         return;
       }
+      const unitWeight = slot.type.weight > 0 ? slot.type.weight : (slot.footprintLength * slot.footprintWidth * slot.unitHeight) / 1e6;
       for (let layer = 0; layer < slot.count; layer++){
         placed.push({
           ref: slot.type.ref,
           typeIdx: slot.typeIdx,
           x: bestCol.x, z: bestCol.z, y: bestCol.topHeight + layer * slot.unitHeight,
-          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight
+          length: slot.footprintLength, width: slot.footprintWidth, height: slot.unitHeight,
+          weight: unitWeight
         });
       }
       bestCol.topHeight += stackHeight;
@@ -729,11 +756,19 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     const totalTruckVolume = truck.length * truck.width * truck.height;
     const usedVolume = placed.reduce((sum,p) => sum + p.length*p.width*p.height, 0);
 
+    // Front/rear weight split (real weight if given, volume estimate otherwise)
+    // so an uneven load — everything piled at one end — shows up clearly.
+    const totalWeight = placed.reduce((s,p) => s + p.weight, 0);
+    const frontWeightTotal = placed.reduce((s,p) => s + (p.x + p.length/2 < truck.length/2 ? p.weight : 0), 0);
+    const frontPct = totalWeight > 0 ? frontWeightTotal / totalWeight : 0;
+    const hasRealWeights = types.some(t => t.weight > 0);
+
     return {
       placed, overflow, usedLength,
       fillRatio: totalTruckVolume > 0 ? usedVolume / totalTruckVolume : 0,
       totalUnits: types.reduce((s,t) => s + t.qty, 0),
-      placedUnits: placed.length
+      placedUnits: placed.length,
+      frontPct, hasRealWeights
     };
   }
 
@@ -920,11 +955,19 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     const usedLengthM = (plan.usedLength/100).toFixed(2);
     const truckLengthM = (truck.length/100).toFixed(2);
     const fillPct = (plan.fillRatio*100).toFixed(1);
+    const frontPct = Math.round(plan.frontPct*100);
+    const backPct = 100 - frontPct;
+    const weightLabel = plan.hasRealWeights ? "Répartition du poids" : "Répartition du poids (estimée sur le volume)";
     statsBarEl.innerHTML = `
       <div>Palettes placées : <b>${plan.placedUnits} / ${plan.totalUnits}</b></div>
       <div>Longueur utilisée : <b>${usedLengthM} m / ${truckLengthM} m</b></div>
       <div>Remplissage volumique : <b>${fillPct} %</b></div>
+      <div>${weightLabel} : <b>${frontPct} % avant / ${backPct} % arrière</b></div>
     `;
+
+    const balanceWarning = Math.abs(frontPct - 50) > 15
+      ? `<div class="msg warn">Chargement déséquilibré : ${frontPct > 50 ? "trop de poids à l'avant" : "trop de poids à l'arrière"} (${frontPct} % / ${backPct} %)${plan.hasRealWeights ? "" : " — estimation basée sur le volume, faute de poids renseignés"}. Renseignez la colonne Poids (kg) pour un résultat plus fiable, ou répartissez les palettes manuellement.</div>`
+      : "";
 
     if (plan.overflow.length){
       const missing = plan.overflow.reduce((s,o)=>s+o.count,0);
@@ -935,9 +978,9 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       const overflowList = Array.from(overflowByRef.entries())
         .map(([ref, count]) => `<li>${escapeAttr(ref)}${count > 1 ? ` (x${count})` : ""}</li>`)
         .join("");
-      genMsg.innerHTML = `<div class="msg warn">${missing} palette(s) ne rentrent pas dans ce camion et n'ont pas été placées :<ul style="margin:6px 0 0 18px;">${overflowList}</ul>Essayez un camion plus long ou réduisez les quantités.</div>`;
+      genMsg.innerHTML = balanceWarning + `<div class="msg warn">${missing} palette(s) ne rentrent pas dans ce camion et n'ont pas été placées :<ul style="margin:6px 0 0 18px;">${overflowList}</ul>Essayez un camion plus long ou réduisez les quantités.</div>`;
     } else {
-      genMsg.innerHTML = `<div class="msg info">Plan généré avec succès. Faites pivoter la vue avec la souris.</div>`;
+      genMsg.innerHTML = balanceWarning + `<div class="msg info">Plan généré avec succès. Faites pivoter la vue avec la souris.</div>`;
     }
   });
 

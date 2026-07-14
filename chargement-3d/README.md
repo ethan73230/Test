@@ -30,6 +30,7 @@ les libellés suivants (accents et casse ignorés) sont reconnus automatiquement
 | Largeur    | largeur, width                                                  |
 | Hauteur    | hauteur, height, h                                              |
 | Quantité   | qte, qté, quantite, quantité, qty, quantity, nombre, nb        |
+| Poids (kg) | poids, weight, masse, mass, kg (optionnel)                      |
 
 Les dimensions sont supposées en **centimètres**. Ajoutez `(m)` ou `(mm)` dans
 l'intitulé de la colonne pour indiquer une autre unité (ex : `Longueur (m)`).
@@ -68,10 +69,23 @@ L'algorithme est un algorithme glouton ("shelf packing") : les palettes de
 même empreinte (longueur x largeur) sont d'abord empilées verticalement selon
 la hauteur disponible du camion, puis les colonnes obtenues sont rangées en
 lignes le long de la longueur du camion, en remplissant la largeur disponible
-avant de passer à la ligne suivante. Ce n'est pas un optimiseur exact (le
-problème de bin-packing 3D est NP-difficile), mais il donne un plan dense et
-lisible en temps réel. Les palettes qui ne peuvent pas être placées (camion
-trop court/étroit) sont signalées dans un message d'avertissement.
+avant de passer à la ligne suivante. Les palettes qui ne rentrent pas au sol
+sont ensuite empilées sur n'importe quelle palette déjà posée (même de forme
+différente, camion à bâche latérale = chargement possible jusqu'au plafond),
+tant que la hauteur et l'emprise du camion le permettent. Ce n'est pas un
+optimiseur exact (le problème de bin-packing 3D est NP-difficile), mais il
+donne un plan dense et lisible en temps réel. Les palettes qui ne peuvent
+vraiment être placées nulle part sont listées nommément dans un message
+d'avertissement.
+
+**Répartition du poids** — les nouvelles rangées au sol alternent entre
+l'avant et l'arrière du camion (celui qui porte le moins de charge à cet
+instant), afin d'éviter un chargement trop concentré à un bout. Le poids réel
+(colonne « Poids (kg) ») est utilisé s'il est renseigné ; à défaut, le volume
+de chaque palette sert d'estimation. Le pourcentage avant/arrière est affiché
+sous la vue 3D, avec un avertissement si l'écart dépasse 65/35 — cette
+estimation reste indicative et ne remplace pas une vérification réelle de la
+répartition de charge par essieu.
 
 ## Dépendances
 

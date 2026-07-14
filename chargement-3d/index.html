@@ -923,7 +923,14 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 
     if (plan.overflow.length){
       const missing = plan.overflow.reduce((s,o)=>s+o.count,0);
-      genMsg.innerHTML = `<div class="msg warn">${missing} palette(s) ne rentrent pas dans ce camion et n'ont pas été placées. Essayez un camion plus long ou réduisez les quantités.</div>`;
+      const overflowByRef = new Map();
+      plan.overflow.forEach(o => {
+        overflowByRef.set(o.type.ref, (overflowByRef.get(o.type.ref) || 0) + o.count);
+      });
+      const overflowList = Array.from(overflowByRef.entries())
+        .map(([ref, count]) => `<li>${escapeAttr(ref)}${count > 1 ? ` (x${count})` : ""}</li>`)
+        .join("");
+      genMsg.innerHTML = `<div class="msg warn">${missing} palette(s) ne rentrent pas dans ce camion et n'ont pas été placées :<ul style="margin:6px 0 0 18px;">${overflowList}</ul>Essayez un camion plus long ou réduisez les quantités.</div>`;
     } else {
       genMsg.innerHTML = `<div class="msg info">Plan généré avec succès. Faites pivoter la vue avec la souris.</div>`;
     }

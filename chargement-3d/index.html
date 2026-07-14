@@ -675,21 +675,35 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     // and still has height budget left, even if the shapes don't match —
     // this is what lets short, unrelated items ride on top of taller ones
     // instead of the truck reporting unused height as "doesn't fit".
-    const columns = new Map(); // key "x_z" -> {x,z,length,width,topHeight}
+    // maxLength/maxWidth is the largest footprint ever placed in this column
+    // (it only grows) — this is the column's true reserved floor rectangle,
+    // used to keep an overhanging stacked pallet from intruding into a
+    // neighboring column's airspace.
+    const columns = new Map(); // key "x_z" -> {x,z,maxLength,maxWidth,topHeight}
     placed.forEach(p => {
       const key = p.x + '_' + p.z;
       const top = p.y + p.height;
       const existing = columns.get(key);
-      if (!existing || existing.topHeight < top){
-        columns.set(key, { x: p.x, z: p.z, length: p.length, width: p.width, topHeight: top });
+      if (!existing){
+        columns.set(key, { x: p.x, z: p.z, maxLength: p.length, maxWidth: p.width, topHeight: top });
+      } else {
+        existing.topHeight = Math.max(existing.topHeight, top);
+        existing.maxLength = Math.max(existing.maxLength, p.length);
+        existing.maxWidth = Math.max(existing.maxWidth, p.width);
       }
     });
+
+    function rectsOverlap(ax, az, aLen, aWid, bx, bz, bLen, bWid){
+      return ax < bx + bLen - 1e-6 && bx < ax + aLen - 1e-6 &&
+             az < bz + bWid - 1e-6 && bz < az + aWid - 1e-6;
+    }
 
     // Trucks here are side-loaded (curtain-side), not just accessed from the
     // back, so pallets of mismatched shapes can still be stacked on top of
     // each other all the way to the ceiling — prefer a column the item nests
     // into cleanly, but fall back to stacking on any column with height
-    // budget left even if the footprint overhangs.
+    // budget left even if the footprint overhangs, as long as the overhang
+    // doesn't physically collide with a neighboring column.
     // Widest pallets go first: they fit on the fewest columns (only ones
     // positioned close enough to the truck's side wall), so giving them
     // first pick avoids narrower pallets — which fit almost anywhere — from
@@ -700,7 +714,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       const stackHeight = slot.unitHeight * slot.count;
       let bestCol = null, bestWaste = Infinity;
       columns.forEach(col => {
-        if (slot.footprintLength <= col.length + 1e-6 && slot.footprintWidth <= col.width + 1e-6 &&
+        if (slot.footprintLength <= col.maxLength + 1e-6 && slot.footprintWidth <= col.maxWidth + 1e-6 &&
             col.topHeight + stackHeight <= truck.height + 1e-6){
           const waste = truck.height - (col.topHeight + stackHeight);
           if (waste < bestWaste){ bestWaste = waste; bestCol = col; }
@@ -709,10 +723,17 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       if (!bestCol){
         columns.forEach(col => {
           // Relaxed fit: no longer requires nesting within the base footprint,
-          // but the pallet still can't stick out past the truck's own walls.
+          // but the pallet still can't stick out past the truck's own walls,
+          // nor into a neighboring column's reserved rectangle.
           if (col.topHeight + stackHeight <= truck.height + 1e-6 &&
               col.x + slot.footprintLength <= truck.length + 1e-6 &&
               col.z + slot.footprintWidth <= truck.width + 1e-6){
+            let collides = false;
+            columns.forEach(other => {
+              if (other === col) return;
+              if (rectsOverlap(col.x, col.z, slot.footprintLength, slot.footprintWidth, other.x, other.z, other.maxLength, other.maxWidth)) collides = true;
+            });
+            if (collides) return;
             const waste = truck.height - (col.topHeight + stackHeight);
             if (waste < bestWaste){ bestWaste = waste; bestCol = col; }
           }
@@ -733,9 +754,10 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
         });
       }
       bestCol.topHeight += stackHeight;
-      // The next item stacks on top of what was just placed, not the original base.
-      bestCol.length = slot.footprintLength;
-      bestCol.width = slot.footprintWidth;
+      // The next item stacks on top of what was just placed; the column's
+      // reserved rectangle only grows, it never shrinks back down.
+      bestCol.maxLength = Math.max(bestCol.maxLength, slot.footprintLength);
+      bestCol.maxWidth = Math.max(bestCol.maxWidth, slot.footprintWidth);
     });
 
     // Derive isTop from final positions (a later stacking pass can put a

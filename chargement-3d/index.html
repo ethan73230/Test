@@ -665,7 +665,12 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
     // each other all the way to the ceiling — prefer a column the item nests
     // into cleanly, but fall back to stacking on any column with height
     // budget left even if the footprint overhangs.
+    // Widest pallets go first: they fit on the fewest columns (only ones
+    // positioned close enough to the truck's side wall), so giving them
+    // first pick avoids narrower pallets — which fit almost anywhere — from
+    // hogging those scarce wide columns.
     const overflow = [];
+    floorOverflow.sort((a,b) => b.footprintWidth - a.footprintWidth || b.unitHeight - a.unitHeight);
     floorOverflow.forEach(slot => {
       const stackHeight = slot.unitHeight * slot.count;
       let bestCol = null, bestWaste = Infinity;

@@ -605,8 +605,12 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       }
     });
 
-    // Sort largest footprint first for a tighter shelf packing.
-    slots.sort((a,b) => (b.footprintLength*b.footprintWidth) - (a.footprintLength*a.footprintWidth));
+    // Floor rows go to the tallest pallets first: something that already
+    // takes up most of the truck's height can't usefully share a column
+    // with anything else later, so it needs a floor spot while one is still
+    // available. Among pallets of similar height, largest footprint first
+    // for a tighter shelf packing.
+    slots.sort((a,b) => (b.unitHeight/truck.height) - (a.unitHeight/truck.height) || (b.footprintLength*b.footprintWidth) - (a.footprintLength*a.footprintWidth));
 
     const placed = [];
     const floorOverflow = [];

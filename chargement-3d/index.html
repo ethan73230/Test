@@ -660,6 +660,11 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
       }
     });
 
+    // Trucks here are side-loaded (curtain-side), not just accessed from the
+    // back, so pallets of mismatched shapes can still be stacked on top of
+    // each other all the way to the ceiling — prefer a column the item nests
+    // into cleanly, but fall back to stacking on any column with height
+    // budget left even if the footprint overhangs.
     const overflow = [];
     floorOverflow.forEach(slot => {
       const stackHeight = slot.unitHeight * slot.count;
@@ -671,6 +676,18 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
           if (waste < bestWaste){ bestWaste = waste; bestCol = col; }
         }
       });
+      if (!bestCol){
+        columns.forEach(col => {
+          // Relaxed fit: no longer requires nesting within the base footprint,
+          // but the pallet still can't stick out past the truck's own walls.
+          if (col.topHeight + stackHeight <= truck.height + 1e-6 &&
+              col.x + slot.footprintLength <= truck.length + 1e-6 &&
+              col.z + slot.footprintWidth <= truck.width + 1e-6){
+            const waste = truck.height - (col.topHeight + stackHeight);
+            if (waste < bestWaste){ bestWaste = waste; bestCol = col; }
+          }
+        });
+      }
       if (!bestCol){
         overflow.push(slot);
         return;
@@ -684,6 +701,9 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
         });
       }
       bestCol.topHeight += stackHeight;
+      // The next item stacks on top of what was just placed, not the original base.
+      bestCol.length = slot.footprintLength;
+      bestCol.width = slot.footprintWidth;
     });
 
     // Derive isTop from final positions (a later stacking pass can put a

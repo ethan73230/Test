@@ -28,114 +28,114 @@
     }
   },
   "last_prices": {
-    "PLTR": 133.73989868164062,
-    "NVDA": 207.39210510253906,
-    "AMD": 518.239990234375,
-    "AMC": 2.0399999618530273
+    "PLTR": 133.625,
+    "NVDA": 210.42539978027344,
+    "AMD": 529.530029296875,
+    "AMC": 2.0299999713897705
   },
   "watchlist_snapshot": {
     "AFRM": {
-      "price": 81.5999984741211,
-      "atr_pct": 0.046,
-      "rsi": 58.1,
+      "price": 81.19000244140625,
+      "atr_pct": 0.0462,
+      "rsi": 57.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMC": {
-      "price": 2.0399999618530273,
-      "atr_pct": 0.0935,
-      "rsi": 51.6,
-      "breakout": true,
+      "price": 2.0299999713897705,
+      "atr_pct": 0.0939,
+      "rsi": 51.2,
+      "breakout": false,
       "signal": "in_position"
     },
     "AMD": {
-      "price": 518.239990234375,
-      "atr_pct": 0.0773,
-      "rsi": 49.8,
+      "price": 529.530029296875,
+      "atr_pct": 0.0756,
+      "rsi": 51.6,
       "breakout": false,
       "signal": "in_position"
     },
     "COIN": {
-      "price": 163.49000549316406,
-      "atr_pct": 0.0579,
-      "rsi": 60.5,
+      "price": 167.8000030517578,
+      "atr_pct": 0.0568,
+      "rsi": 63.0,
       "breakout": false,
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 70.20500183105469,
-      "atr_pct": 0.0572,
-      "rsi": 54.4,
-      "breakout": false,
-      "signal": "no_signal"
-    },
-    "GME": {
-      "price": 22.31999969482422,
-      "atr_pct": 0.0258,
-      "rsi": 59.3,
-      "breakout": false,
-      "signal": "no_signal"
-    },
-    "MARA": {
-      "price": 11.779999732971191,
-      "atr_pct": 0.1095,
-      "rsi": 34.2,
-      "breakout": false,
-      "signal": "no_signal"
-    },
-    "NVDA": {
-      "price": 207.39210510253906,
-      "atr_pct": 0.0344,
-      "rsi": 57.2,
-      "breakout": false,
-      "signal": "in_position"
-    },
-    "PLTR": {
-      "price": 133.73989868164062,
-      "atr_pct": 0.054,
-      "rsi": 71.1,
-      "breakout": false,
-      "signal": "in_position"
-    },
-    "RIOT": {
-      "price": 19.764999389648438,
-      "atr_pct": 0.1063,
-      "rsi": 18.9,
-      "breakout": false,
-      "signal": "no_signal"
-    },
-    "RIVN": {
-      "price": 17.860000610351562,
-      "atr_pct": 0.0823,
-      "rsi": 62.9,
-      "breakout": false,
-      "signal": "no_signal"
-    },
-    "SMCI": {
-      "price": 26.510000228881836,
-      "atr_pct": 0.0658,
-      "rsi": 26.1,
-      "breakout": false,
-      "signal": "no_signal"
-    },
-    "SOFI": {
-      "price": 17.954999923706055,
-      "atr_pct": 0.052,
+      "price": 70.77999877929688,
+      "atr_pct": 0.0568,
       "rsi": 55.5,
       "breakout": false,
       "signal": "no_signal"
     },
+    "GME": {
+      "price": 22.25,
+      "atr_pct": 0.026,
+      "rsi": 58.4,
+      "breakout": false,
+      "signal": "no_signal"
+    },
+    "MARA": {
+      "price": 12.3100004196167,
+      "atr_pct": 0.1048,
+      "rsi": 37.6,
+      "breakout": false,
+      "signal": "no_signal"
+    },
+    "NVDA": {
+      "price": 210.42539978027344,
+      "atr_pct": 0.0339,
+      "rsi": 60.4,
+      "breakout": false,
+      "signal": "in_position"
+    },
+    "PLTR": {
+      "price": 133.625,
+      "atr_pct": 0.054,
+      "rsi": 71.0,
+      "breakout": false,
+      "signal": "in_position"
+    },
+    "RIOT": {
+      "price": 20.299999237060547,
+      "atr_pct": 0.1035,
+      "rsi": 20.3,
+      "breakout": false,
+      "signal": "no_signal"
+    },
+    "RIVN": {
+      "price": 17.954999923706055,
+      "atr_pct": 0.0819,
+      "rsi": 63.2,
+      "breakout": false,
+      "signal": "no_signal"
+    },
+    "SMCI": {
+      "price": 27.0049991607666,
+      "atr_pct": 0.0646,
+      "rsi": 27.2,
+      "breakout": false,
+      "signal": "no_signal"
+    },
+    "SOFI": {
+      "price": 18.010000228881836,
+      "atr_pct": 0.0519,
+      "rsi": 56.1,
+      "breakout": false,
+      "signal": "no_signal"
+    },
     "TSLA": {
-      "price": 392.42999267578125,
-      "atr_pct": 0.0481,
-      "rsi": 55.1,
+      "price": 397.1600036621094,
+      "atr_pct": 0.0475,
+      "rsi": 56.6,
       "breakout": false,
       "signal": "no_signal"
     },
     "UPST": {
-      "price": 31.59000015258789,
-      "atr_pct": 0.064,
-      "rsi": 45.0,
+      "price": 31.7549991607666,
+      "atr_pct": 0.0637,
+      "rsi": 45.7,
       "breakout": false,
       "signal": "no_signal"
     }
@@ -201,8 +201,8 @@
     },
     {
       "date": "2026-07-15",
-      "equity": 198.75
+      "equity": 199.25
     }
   ],
-  "last_run": "2026-07-15T16:52:41.398313Z"
+  "last_run": "2026-07-15T18:41:19.581295Z"
 }

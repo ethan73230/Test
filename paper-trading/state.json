@@ -13,7 +13,7 @@
     "PLTR": 121.11000061035156,
     "NVDA": 192.05999755859375,
     "AMD": 507.49249267578125,
-    "AMC": 2.7200000286102295,
+    "AMC": 2.7699999809265137,
     "COIN": 159.88999938964844,
     "MARA": 11.449999809265137,
     "RIOT": 21.209999084472656,
@@ -21,107 +21,107 @@
   },
   "watchlist_snapshot": {
     "AFRM": {
-      "price": 72.44000244140625,
-      "atr_pct": 0.0453,
-      "rsi": 29.1,
+      "price": 73.25,
+      "atr_pct": 0.0458,
+      "rsi": 31.3,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMC": {
-      "price": 2.7200000286102295,
-      "atr_pct": 0.0867,
-      "rsi": 74.0,
+      "price": 2.7699999809265137,
+      "atr_pct": 0.0851,
+      "rsi": 75.6,
       "breakout": false,
       "signal": "in_position"
     },
     "AMD": {
-      "price": 485.4200134277344,
-      "atr_pct": 0.0849,
+      "price": 485.3900146484375,
+      "atr_pct": 0.085,
       "rsi": 38.8,
       "breakout": false,
       "signal": "no_signal"
     },
     "COIN": {
-      "price": 162.22000122070312,
-      "atr_pct": 0.0559,
-      "rsi": 52.0,
+      "price": 163.5800018310547,
+      "atr_pct": 0.0555,
+      "rsi": 52.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 59.65999984741211,
-      "atr_pct": 0.0708,
-      "rsi": 40.6,
+      "price": 61.439998626708984,
+      "atr_pct": 0.0688,
+      "rsi": 42.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "GME": {
-      "price": 21.844999313354492,
-      "atr_pct": 0.0203,
-      "rsi": 52.4,
+      "price": 21.8799991607666,
+      "atr_pct": 0.0204,
+      "rsi": 52.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "MARA": {
-      "price": 11.795000076293945,
-      "atr_pct": 0.0914,
-      "rsi": 45.4,
+      "price": 11.819999694824219,
+      "atr_pct": 0.0912,
+      "rsi": 45.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "NVDA": {
-      "price": 193.38499450683594,
-      "atr_pct": 0.0398,
-      "rsi": 35.8,
+      "price": 195.0399932861328,
+      "atr_pct": 0.0395,
+      "rsi": 37.4,
       "breakout": false,
       "signal": "no_signal"
     },
     "PLTR": {
-      "price": 121.86000061035156,
-      "atr_pct": 0.0544,
-      "rsi": 44.2,
+      "price": 122.26000213623047,
+      "atr_pct": 0.0543,
+      "rsi": 44.6,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIOT": {
-      "price": 22.399999618530273,
-      "atr_pct": 0.094,
-      "rsi": 54.0,
+      "price": 22.1200008392334,
+      "atr_pct": 0.0952,
+      "rsi": 53.2,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIVN": {
-      "price": 16.524999618530273,
-      "atr_pct": 0.0541,
-      "rsi": 41.8,
+      "price": 16.829999923706055,
+      "atr_pct": 0.0542,
+      "rsi": 44.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "SMCI": {
-      "price": 27.559999465942383,
-      "atr_pct": 0.0834,
-      "rsi": 48.0,
+      "price": 27.729999542236328,
+      "atr_pct": 0.0829,
+      "rsi": 48.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "SOFI": {
-      "price": 16.229999542236328,
-      "atr_pct": 0.0548,
-      "rsi": 32.9,
+      "price": 16.469999313354492,
+      "atr_pct": 0.055,
+      "rsi": 35.0,
       "breakout": false,
       "signal": "no_signal"
     },
     "TSLA": {
-      "price": 308.0400085449219,
-      "atr_pct": 0.0517,
-      "rsi": 14.6,
+      "price": 308.8500061035156,
+      "atr_pct": 0.052,
+      "rsi": 15.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "UPST": {
-      "price": 26.895000457763672,
-      "atr_pct": 0.0561,
-      "rsi": 19.7,
+      "price": 27.040000915527344,
+      "atr_pct": 0.0566,
+      "rsi": 20.9,
       "breakout": false,
       "signal": "no_signal"
     }
@@ -360,8 +360,8 @@
     },
     {
       "date": "2026-07-30",
-      "equity": 193.45
+      "equity": 193.78
     }
   ],
-  "last_run": "2026-07-30T18:57:51.899369Z"
+  "last_run": "2026-07-30T20:44:24.629616Z"
 }

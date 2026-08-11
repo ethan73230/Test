@@ -42,115 +42,115 @@
     "MARA": 11.449999809265137,
     "RIOT": 21.209999084472656,
     "CVNA": 58.77619934082031,
-    "UPST": 29.190000534057617,
-    "TSLA": 331.489990234375,
-    "AFRM": 76.30999755859375,
-    "SOFI": 17.920000076293945,
-    "SMCI": 31.569900512695312
+    "UPST": 29.200000762939453,
+    "TSLA": 331.8800048828125,
+    "AFRM": 76.41500091552734,
+    "SOFI": 17.899999618530273,
+    "SMCI": 31.420000076293945
   },
   "watchlist_snapshot": {
     "AFRM": {
-      "price": 76.30999755859375,
-      "atr_pct": 0.0434,
-      "rsi": 54.7,
+      "price": 76.41500091552734,
+      "atr_pct": 0.0433,
+      "rsi": 54.9,
       "breakout": false,
       "signal": "in_position"
     },
     "AMC": {
-      "price": 2.4549999237060547,
-      "atr_pct": 0.0797,
-      "rsi": 59.1,
+      "price": 2.4000000953674316,
+      "atr_pct": 0.0815,
+      "rsi": 56.8,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMD": {
-      "price": 466.7900085449219,
-      "atr_pct": 0.0773,
-      "rsi": 35.6,
+      "price": 465.760009765625,
+      "atr_pct": 0.0775,
+      "rsi": 35.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "COIN": {
-      "price": 148.0,
-      "atr_pct": 0.0612,
-      "rsi": 37.0,
+      "price": 147.5399932861328,
+      "atr_pct": 0.0614,
+      "rsi": 36.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 71.76000213623047,
-      "atr_pct": 0.0581,
-      "rsi": 64.5,
+      "price": 71.62999725341797,
+      "atr_pct": 0.0582,
+      "rsi": 64.3,
       "breakout": false,
       "signal": "no_signal"
     },
     "GME": {
-      "price": 18.700000762939453,
-      "atr_pct": 0.0355,
-      "rsi": 24.6,
+      "price": 18.760099411010742,
+      "atr_pct": 0.0354,
+      "rsi": 24.8,
       "breakout": false,
       "signal": "no_signal"
     },
     "MARA": {
-      "price": 9.694999694824219,
-      "atr_pct": 0.0998,
-      "rsi": 33.3,
+      "price": 9.800000190734863,
+      "atr_pct": 0.0988,
+      "rsi": 34.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "NVDA": {
-      "price": 218.5175018310547,
-      "atr_pct": 0.0349,
-      "rsi": 55.0,
+      "price": 217.1143035888672,
+      "atr_pct": 0.0354,
+      "rsi": 53.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "PLTR": {
-      "price": 172.89500427246094,
-      "atr_pct": 0.0541,
-      "rsi": 77.4,
+      "price": 176.19000244140625,
+      "atr_pct": 0.0531,
+      "rsi": 79.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIOT": {
-      "price": 19.809999465942383,
-      "atr_pct": 0.1207,
-      "rsi": 38.8,
+      "price": 19.545000076293945,
+      "atr_pct": 0.1223,
+      "rsi": 37.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIVN": {
-      "price": 16.174999237060547,
-      "atr_pct": 0.0498,
-      "rsi": 42.6,
+      "price": 16.260000228881836,
+      "atr_pct": 0.0496,
+      "rsi": 43.2,
       "breakout": false,
       "signal": "no_signal"
     },
     "SMCI": {
-      "price": 31.569900512695312,
-      "atr_pct": 0.0676,
-      "rsi": 53.0,
+      "price": 31.420000076293945,
+      "atr_pct": 0.068,
+      "rsi": 52.6,
       "breakout": false,
       "signal": "in_position"
     },
     "SOFI": {
-      "price": 17.920000076293945,
-      "atr_pct": 0.0468,
-      "rsi": 55.5,
+      "price": 17.899999618530273,
+      "atr_pct": 0.0471,
+      "rsi": 55.3,
       "breakout": false,
       "signal": "in_position"
     },
     "TSLA": {
-      "price": 331.489990234375,
-      "atr_pct": 0.0431,
-      "rsi": 32.9,
+      "price": 331.8800048828125,
+      "atr_pct": 0.043,
+      "rsi": 33.1,
       "breakout": false,
       "signal": "in_position"
     },
     "UPST": {
-      "price": 29.190000534057617,
-      "atr_pct": 0.0604,
-      "rsi": 52.4,
+      "price": 29.200000762939453,
+      "atr_pct": 0.0606,
+      "rsi": 52.5,
       "breakout": false,
       "signal": "in_position"
     }
@@ -466,8 +466,8 @@
     },
     {
       "date": "2026-08-11",
-      "equity": 191.6
+      "equity": 191.57
     }
   ],
-  "last_run": "2026-08-11T16:27:46.874891Z"
+  "last_run": "2026-08-11T17:32:13.442724Z"
 }

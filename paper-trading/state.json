@@ -13,7 +13,7 @@
     "PLTR": 121.11000061035156,
     "NVDA": 192.05999755859375,
     "AMD": 507.49249267578125,
-    "AMC": 2.7049999237060547,
+    "AMC": 2.6700000762939453,
     "COIN": 159.88999938964844,
     "MARA": 11.449999809265137,
     "RIOT": 21.209999084472656,
@@ -26,107 +26,107 @@
   },
   "watchlist_snapshot": {
     "AFRM": {
-      "price": 76.90499877929688,
-      "atr_pct": 0.0443,
-      "rsi": 47.7,
+      "price": 76.81999969482422,
+      "atr_pct": 0.0444,
+      "rsi": 47.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMC": {
-      "price": 2.7049999237060547,
-      "atr_pct": 0.0568,
-      "rsi": 51.0,
+      "price": 2.6700000762939453,
+      "atr_pct": 0.0575,
+      "rsi": 49.6,
       "breakout": true,
       "signal": "in_position"
     },
     "AMD": {
-      "price": 457.0899963378906,
+      "price": 456.281005859375,
       "atr_pct": 0.0476,
-      "rsi": 32.8,
+      "rsi": 32.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "COIN": {
-      "price": 180.5500030517578,
-      "atr_pct": 0.05,
-      "rsi": 68.2,
+      "price": 179.3000030517578,
+      "atr_pct": 0.0509,
+      "rsi": 67.2,
       "breakout": false,
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 71.55500030517578,
-      "atr_pct": 0.0518,
-      "rsi": 55.1,
+      "price": 72.06999969482422,
+      "atr_pct": 0.0514,
+      "rsi": 55.8,
       "breakout": false,
       "signal": "no_signal"
     },
     "GME": {
-      "price": 17.96500015258789,
-      "atr_pct": 0.0231,
-      "rsi": 25.1,
+      "price": 17.9950008392334,
+      "atr_pct": 0.023,
+      "rsi": 25.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "MARA": {
-      "price": 11.345000267028809,
-      "atr_pct": 0.0766,
-      "rsi": 46.9,
+      "price": 11.194999694824219,
+      "atr_pct": 0.0776,
+      "rsi": 45.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "NVDA": {
-      "price": 209.1999969482422,
-      "atr_pct": 0.0277,
-      "rsi": 46.8,
+      "price": 208.3699951171875,
+      "atr_pct": 0.0282,
+      "rsi": 45.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "PLTR": {
-      "price": 176.4499969482422,
-      "atr_pct": 0.0422,
-      "rsi": 61.5,
+      "price": 176.05889892578125,
+      "atr_pct": 0.0423,
+      "rsi": 61.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIOT": {
-      "price": 20.049999237060547,
-      "atr_pct": 0.096,
-      "rsi": 42.4,
+      "price": 19.985000610351562,
+      "atr_pct": 0.0963,
+      "rsi": 42.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIVN": {
-      "price": 16.763700485229492,
-      "atr_pct": 0.0383,
-      "rsi": 59.3,
+      "price": 16.65999984741211,
+      "atr_pct": 0.0386,
+      "rsi": 58.2,
       "breakout": false,
       "signal": "no_signal"
     },
     "SMCI": {
-      "price": 35.46500015258789,
-      "atr_pct": 0.0718,
-      "rsi": 60.1,
+      "price": 35.16999816894531,
+      "atr_pct": 0.0724,
+      "rsi": 59.2,
       "breakout": false,
       "signal": "no_signal"
     },
     "SOFI": {
-      "price": 18.354999542236328,
-      "atr_pct": 0.0398,
-      "rsi": 46.8,
+      "price": 18.238300323486328,
+      "atr_pct": 0.0404,
+      "rsi": 45.8,
       "breakout": false,
       "signal": "no_signal"
     },
     "TSLA": {
-      "price": 349.3599853515625,
+      "price": 349.63360595703125,
       "atr_pct": 0.0342,
-      "rsi": 61.2,
+      "rsi": 61.4,
       "breakout": false,
       "signal": "no_signal"
     },
     "UPST": {
-      "price": 29.90999984741211,
-      "atr_pct": 0.062,
-      "rsi": 48.4,
+      "price": 30.000099182128906,
+      "atr_pct": 0.0618,
+      "rsi": 48.7,
       "breakout": false,
       "signal": "no_signal"
     }
@@ -548,8 +548,8 @@
     },
     {
       "date": "2026-08-24",
-      "equity": 195.74
+      "equity": 195.48
     }
   ],
-  "last_run": "2026-08-24T19:11:18.334957Z"
+  "last_run": "2026-08-24T19:57:30.573140Z"
 }

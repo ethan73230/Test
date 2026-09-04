@@ -35,52 +35,52 @@
   },
   "last_prices": {
     "PLTR": 167.9199981689453,
-    "NVDA": 230.3300018310547,
+    "NVDA": 230.36000061035156,
     "AMD": 507.49249267578125,
-    "AMC": 2.6449999809265137,
+    "AMC": 2.6500000953674316,
     "COIN": 159.88999938964844,
     "MARA": 11.449999809265137,
-    "RIOT": 21.560100555419922,
-    "CVNA": 74.83499908447266,
+    "RIOT": 21.799999237060547,
+    "CVNA": 74.58999633789062,
     "UPST": 29.979999542236328,
-    "TSLA": 354.0350036621094,
+    "TSLA": 354.0799865722656,
     "AFRM": 78.2699966430664,
     "SOFI": 18.655000686645508,
     "SMCI": 34.560001373291016
   },
   "watchlist_snapshot": {
     "AFRM": {
-      "price": 72.26000213623047,
-      "atr_pct": 0.0589,
-      "rsi": 45.8,
+      "price": 72.3499984741211,
+      "atr_pct": 0.0588,
+      "rsi": 46.0,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMC": {
-      "price": 2.6449999809265137,
-      "atr_pct": 0.0618,
-      "rsi": 59.4,
+      "price": 2.6500000953674316,
+      "atr_pct": 0.0617,
+      "rsi": 59.6,
       "breakout": false,
       "signal": "in_position"
     },
     "AMD": {
-      "price": 474.1700134277344,
+      "price": 477.57000732421875,
       "atr_pct": 0.0387,
-      "rsi": 38.6,
+      "rsi": 40.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "COIN": {
-      "price": 183.69000244140625,
-      "atr_pct": 0.0721,
-      "rsi": 62.3,
+      "price": 184.63999938964844,
+      "atr_pct": 0.0718,
+      "rsi": 62.7,
       "breakout": false,
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 74.83499908447266,
-      "atr_pct": 0.0466,
-      "rsi": 58.8,
+      "price": 74.58999633789062,
+      "atr_pct": 0.0467,
+      "rsi": 58.4,
       "breakout": false,
       "signal": "in_position"
     },
@@ -92,65 +92,65 @@
       "signal": "no_signal"
     },
     "MARA": {
-      "price": 11.244999885559082,
-      "atr_pct": 0.0882,
-      "rsi": 58.9,
+      "price": 11.3100004196167,
+      "atr_pct": 0.0877,
+      "rsi": 59.3,
       "breakout": false,
       "signal": "no_signal"
     },
     "NVDA": {
-      "price": 230.3300018310547,
+      "price": 230.36000061035156,
       "atr_pct": 0.0331,
       "rsi": 53.7,
       "breakout": false,
       "signal": "in_position"
     },
     "PLTR": {
-      "price": 173.93499755859375,
+      "price": 174.3300018310547,
       "atr_pct": 0.0473,
-      "rsi": 51.0,
+      "rsi": 51.3,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIOT": {
-      "price": 21.560100555419922,
-      "atr_pct": 0.0751,
-      "rsi": 55.6,
+      "price": 21.799999237060547,
+      "atr_pct": 0.0745,
+      "rsi": 56.3,
       "breakout": true,
       "signal": "in_position"
     },
     "RIVN": {
-      "price": 15.765000343322754,
-      "atr_pct": 0.0421,
-      "rsi": 58.2,
+      "price": 15.739999771118164,
+      "atr_pct": 0.0422,
+      "rsi": 57.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "SMCI": {
-      "price": 39.34000015258789,
-      "atr_pct": 0.0567,
-      "rsi": 53.6,
+      "price": 39.59000015258789,
+      "atr_pct": 0.0563,
+      "rsi": 54.4,
       "breakout": true,
       "signal": "buy_candidate"
     },
     "SOFI": {
-      "price": 18.22599983215332,
+      "price": 18.219999313354492,
       "atr_pct": 0.0498,
       "rsi": 49.5,
       "breakout": false,
       "signal": "no_signal"
     },
     "TSLA": {
-      "price": 354.0350036621094,
+      "price": 354.0799865722656,
       "atr_pct": 0.0433,
       "rsi": 55.0,
       "breakout": false,
       "signal": "in_position"
     },
     "UPST": {
-      "price": 27.959999084472656,
-      "atr_pct": 0.0554,
-      "rsi": 42.1,
+      "price": 28.049999237060547,
+      "atr_pct": 0.0552,
+      "rsi": 42.4,
       "breakout": false,
       "signal": "no_signal"
     }
@@ -657,8 +657,8 @@
     },
     {
       "date": "2026-09-04",
-      "equity": 193.51
+      "equity": 193.64
     }
   ],
-  "last_run": "2026-09-04T19:49:28.904413Z"
+  "last_run": "2026-09-04T22:29:55.032992Z"
 }

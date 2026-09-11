@@ -1,150 +1,156 @@
 {
-  "cash": 134.60258638188952,
+  "cash": 121.14232774370058,
   "starting_cash": 200,
   "positions": {
     "CVNA": {
       "shares": 0.2370901727637522,
       "entry_price": 74.20500183105469,
       "entry_date": "2026-08-25",
-      "days_held": 12
+      "days_held": 13
     },
     "NVDA": {
       "shares": 0.0625079147177413,
       "entry_price": 227.97999572753906,
       "entry_date": "2026-08-27",
-      "days_held": 10
+      "days_held": 11
     },
     "TSLA": {
       "shares": 0.03489455824684686,
       "entry_price": 367.55010986328125,
       "entry_date": "2026-08-31",
-      "days_held": 8
+      "days_held": 9
     },
     "RIOT": {
       "shares": 0.5982462298319394,
       "entry_price": 21.684999465942383,
       "entry_date": "2026-09-04",
-      "days_held": 4
+      "days_held": 5
+    },
+    "MARA": {
+      "shares": 1.1032999056251402,
+      "entry_price": 12.199999809265137,
+      "entry_date": "2026-09-11",
+      "days_held": 0
     }
   },
   "last_prices": {
     "PLTR": 167.9199981689453,
-    "NVDA": 218.36000061035156,
+    "NVDA": 219.1199951171875,
     "AMD": 507.49249267578125,
     "AMC": 2.4375,
     "COIN": 159.88999938964844,
-    "MARA": 11.449999809265137,
-    "RIOT": 20.950000762939453,
-    "CVNA": 70.27999877929688,
+    "MARA": 12.199999809265137,
+    "RIOT": 21.625,
+    "CVNA": 70.66000366210938,
     "UPST": 29.979999542236328,
-    "TSLA": 363.55999755859375,
+    "TSLA": 364.9800109863281,
     "AFRM": 78.2699966430664,
     "SOFI": 18.655000686645508,
     "SMCI": 34.560001373291016
   },
   "watchlist_snapshot": {
     "AFRM": {
-      "price": 67.98999786376953,
-      "atr_pct": 0.0579,
-      "rsi": 35.6,
+      "price": 71.33999633789062,
+      "atr_pct": 0.0565,
+      "rsi": 39.0,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMC": {
-      "price": 2.359999895095825,
-      "atr_pct": 0.071,
-      "rsi": 45.1,
+      "price": 2.4700000286102295,
+      "atr_pct": 0.0694,
+      "rsi": 46.6,
       "breakout": false,
       "signal": "no_signal"
     },
     "AMD": {
-      "price": 503.6000061035156,
-      "atr_pct": 0.0372,
-      "rsi": 60.5,
+      "price": 513.3300170898438,
+      "atr_pct": 0.0371,
+      "rsi": 61.9,
       "breakout": false,
       "signal": "no_signal"
     },
     "COIN": {
-      "price": 172.27999877929688,
-      "atr_pct": 0.0695,
-      "rsi": 50.0,
+      "price": 178.07000732421875,
+      "atr_pct": 0.0636,
+      "rsi": 46.1,
       "breakout": false,
       "signal": "no_signal"
     },
     "CVNA": {
-      "price": 70.27999877929688,
-      "atr_pct": 0.0445,
-      "rsi": 46.9,
+      "price": 70.66000366210938,
+      "atr_pct": 0.0438,
+      "rsi": 52.0,
       "breakout": false,
       "signal": "in_position"
     },
     "GME": {
-      "price": 20.389999389648438,
-      "atr_pct": 0.0284,
-      "rsi": 76.9,
+      "price": 20.93000030517578,
+      "atr_pct": 0.0302,
+      "rsi": 78.7,
       "breakout": true,
       "signal": "no_signal"
     },
     "MARA": {
-      "price": 11.430000305175781,
-      "atr_pct": 0.079,
-      "rsi": 52.1,
-      "breakout": false,
-      "signal": "no_signal"
+      "price": 12.199999809265137,
+      "atr_pct": 0.0711,
+      "rsi": 56.4,
+      "breakout": true,
+      "signal": "in_position"
     },
     "NVDA": {
-      "price": 218.36000061035156,
-      "atr_pct": 0.0354,
-      "rsi": 51.0,
+      "price": 219.1199951171875,
+      "atr_pct": 0.035,
+      "rsi": 52.9,
       "breakout": false,
       "signal": "in_position"
     },
     "PLTR": {
-      "price": 165.86000061035156,
-      "atr_pct": 0.0489,
-      "rsi": 44.5,
+      "price": 166.82000732421875,
+      "atr_pct": 0.0458,
+      "rsi": 40.4,
       "breakout": false,
       "signal": "no_signal"
     },
     "RIOT": {
-      "price": 20.950000762939453,
-      "atr_pct": 0.073,
-      "rsi": 49.9,
+      "price": 21.625,
+      "atr_pct": 0.0656,
+      "rsi": 57.5,
       "breakout": false,
       "signal": "in_position"
     },
     "RIVN": {
-      "price": 16.049999237060547,
-      "atr_pct": 0.041,
-      "rsi": 50.4,
+      "price": 16.30229949951172,
+      "atr_pct": 0.0387,
+      "rsi": 41.8,
       "breakout": false,
       "signal": "no_signal"
     },
     "SMCI": {
-      "price": 37.380001068115234,
-      "atr_pct": 0.056,
-      "rsi": 52.6,
+      "price": 39.005001068115234,
+      "atr_pct": 0.0569,
+      "rsi": 55.0,
       "breakout": false,
       "signal": "no_signal"
     },
     "SOFI": {
-      "price": 17.209999084472656,
-      "atr_pct": 0.0469,
-      "rsi": 45.5,
+      "price": 17.30500030517578,
+      "atr_pct": 0.0431,
+      "rsi": 38.4,
       "breakout": false,
       "signal": "no_signal"
     },
     "TSLA": {
-      "price": 363.55999755859375,
-      "atr_pct": 0.0421,
-      "rsi": 56.4,
+      "price": 364.9800109863281,
+      "atr_pct": 0.0391,
+      "rsi": 50.8,
       "breakout": false,
       "signal": "in_position"
     },
     "UPST": {
-      "price": 25.100000381469727,
-      "atr_pct": 0.053,
-      "rsi": 31.7,
+      "price": 25.770000457763672,
+      "atr_pct": 0.0499,
+      "rsi": 26.2,
       "breakout": false,
       "signal": "no_signal"
     }
@@ -487,6 +493,14 @@
       "price": 2.4375,
       "reason": "stop_loss",
       "pnl": -1.7
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MARA",
+      "action": "BUY",
+      "shares": 1.1032999056251402,
+      "price": 12.199999809265137,
+      "reason": "breakout, atr%=0.071, rsi=56.4"
     }
   ],
   "equity_history": [
@@ -677,7 +691,11 @@
     {
       "date": "2026-09-10",
       "equity": 190.13
+    },
+    {
+      "date": "2026-09-11",
+      "equity": 190.73
     }
   ],
-  "last_run": "2026-09-10T22:44:28.707417Z"
+  "last_run": "2026-09-11T17:08:19.433697Z"
 }

@@ -29,13 +29,33 @@ NAV = [
     ("contact.html", "Contact", "orange", None),
 ]
 
+SITE_URL = "https://ethan73230.github.io/Test/st-alban-ski/"
+DEFAULT_IMG = U + "2026/04/154577-montagne_enneigee-neige-montagne_de_poudre-mont_blanc-ski-3840x2160-1-scaled.jpg"
+
 def e(s): return html.escape(s, quote=True)
+
+def thumb(src, w):
+    """Photo redimensionnée et compressée (WebP) par le service d'images wsrv.nl.
+    Si le service ne répond pas, site.js recharge la photo d'origine (data-orig)."""
+    if not src.startswith("https://st-alban-ski.fr/"):
+        return src
+    return "https://wsrv.nl/?url=%s&w=%d&output=webp&q=78" % (src.replace("https://", ""), w)
+
+def img(src, w, alt="", cls="", lazy=True, sizes=None, extra=""):
+    srcset = ""
+    if sizes:
+        srcset = ' srcset="%s %dw, %s %dw" sizes="%s"' % (e(thumb(src, w)), w, e(thumb(src, w * 2)), w * 2, sizes)
+    return '<img%s src="%s"%s alt="%s" data-orig="%s"%s decoding="async"%s>' % (
+        ' class="%s"' % cls if cls else "", e(thumb(src, w)), srcset, e(alt), e(src),
+        ' loading="lazy"' if lazy else ' fetchpriority="high"', extra)
 
 def ICON(name):
     paths = {
         "fb": '<path fill="currentColor" d="M14 8h3V4h-3c-2.8 0-4 1.8-4 4.5V11H7v4h3v9h4v-9h3l1-4h-4V8.6c0-.4.3-.6.6-.6z"/>',
         "yt": '<path fill="currentColor" d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.75 15.02V8.98L15.5 12z"/>',
         "doc": '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 15h6M9 18h6"/>',
+        "cal": '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/>',
+        "print": '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/>',
         "pin": '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"/>',
     }
     return '<svg viewBox="0 0 24 24" aria-hidden="true">%s</svg>' % paths[name]
@@ -43,8 +63,9 @@ def ICON(name):
 def dot(color):
     return '<span class="dot%s" aria-hidden="true"></span>' % (" black" if color == "black" else "")
 
-def page(path, title, body, color="blue", desc="", current=None, prefix=""):
+def page(path, title, body, color="blue", desc="", current=None, prefix="", image=None):
     """prefix = '../' pour les pages dans un sous-dossier."""
+    og_img = image or DEFAULT_IMG
     items = []
     for href, label, c, _ in NAV:
         cur = ' aria-current="page"' if href == current else ""
@@ -57,7 +78,20 @@ def page(path, title, body, color="blue", desc="", current=None, prefix=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{e(title)} – Saint Alban ski club</title>
 <meta name="description" content="{e(desc)}">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121A21" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Saint Alban ski club">
+<meta property="og:title" content="{e(title)}">
+<meta property="og:description" content="{e(desc)}">
+<meta property="og:url" content="{SITE_URL}{path}">
+<meta property="og:image" content="{e(og_img)}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{SITE_URL}{path}">
 <link rel="icon" href="{FAVICON}">
+<link rel="preconnect" href="https://wsrv.nl">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
@@ -72,6 +106,7 @@ def page(path, title, body, color="blue", desc="", current=None, prefix=""):
     <nav class="nav" id="nav" aria-label="Navigation principale"><ul class="menu">{''.join(items)}</ul></nav>
   </div>
 </header>
+<aside class="nextup" id="next" data-prefix="{prefix}" aria-label="Prochain rendez-vous" hidden></aside>
 <main id="contenu">
 {body}
 </main>
@@ -124,10 +159,15 @@ def row(p, prefix=""):
     x = d(p["date"])
     n = len(p["images"])
     sub = "%d photos" % n if n > 1 else (p["text"][0] if p["text"] else "")
-    if p["cover"]:
-        th = '<img class="thumb" src="%s" alt="" loading="lazy" decoding="async">' % e(p["cover"])
+    pics = []
+    for src in ([p["cover"]] if p["cover"] else []) + p["images"]:
+        if src not in pics: pics.append(src)
+    if len(pics) >= 4:
+        th = '<span class="sheet">%s</span>' % "".join(img(s, 220) for s in pics[:4])
+    elif pics:
+        th = img(pics[0], 400, cls="thumb")
     else:
-        th = '<span class="thumb empty">%d photos</span>' % n if n else '<span class="thumb empty"></span>'
+        th = '<span class="thumb empty"></span>'
     return f"""<li class="row"><a href="{prefix}articles/{p['slug']}.html">
 <time datetime="{p['date']}"><b>{x.day}</b><span>{MOIS[x.month-1]} {x.year}</span></time>
 <div><h3>{e(p['title'])}</h3><p>{e(sub)}</p></div>{th}</a></li>"""
@@ -146,9 +186,43 @@ def rows_by_season(lst, prefix=""):
 
 # ---------------------------------------------------------------- Accueil
 actus = [p for p in posts if p["cat"] == "actus"]
+SORTIES_2026 = sorted([p for p in actus if p["slug"].startswith("sortie-") and p["slug"].endswith("2026")
+                       and not p["slug"].startswith("sortie-00")], key=lambda p: p["slug"][7:9])
+
+# Sorties 2027 : (date ISO, libellé court, station, note)
+SORTIES_2027 = [
+    ("2027-01-09", "9 janv.", "Saint-François-Longchamp", ""),
+    ("2027-01-16", "16 janv.", "Saint-François-Longchamp", ""),
+    ("2027-01-23", "23 janv.", "Saint-François-Longchamp", ""),
+    ("2027-01-30", "30 janv.", "Saint-François-Longchamp", ""),
+    ("2027-02-06", "6 févr.", "Saint-François-Longchamp", ""),
+    ("2027-02-27", "27 févr.", "Les Karellis", ""),
+    ("2027-03-06", "6 mars", "Les Karellis", ""),
+    ("2027-03-13", "13 mars", "Les Karellis", ""),
+    ("2027-03-20", "20 mars", "Les Karellis", "tests"),
+    ("2027-03-27", "27 mars", "Les Karellis", ""),
+]
+
+def board(title_id, title, prefix=""):
+    out = ['<section class="board" aria-labelledby="%s"><div class="wrap">' % title_id,
+           '<h2 id="%s">%s</h2>' % (title_id, title)]
+    for st in ("Saint-François-Longchamp", "Les Karellis"):
+        lis = "".join('<li%s><time datetime="%s">%s</time>%s</li>' % (
+            ' class="special"' if note else "", iso, lab, " : " + note if note else "")
+            for iso, lab, s, note in SORTIES_2027 if s == st)
+        out.append('<div class="station"><h3><span class="dot ice" aria-hidden="true"></span>%s</h3><ul class="dates">%s</ul></div>' % (st, lis))
+    out.append('<p class="board-actions"><a class="btn inv" href="%scalendrier-sorties-2027.ics" download>%sAjouter les 10 sorties à mon agenda</a>' % (prefix, ICON("cal")))
+    out.append('<a class="btn inv" href="%sles-sorties.html">Horaires, matériel et consignes</a></p>' % prefix if title_id != "h-cal" else "</p>")
+    out.append("</div></section>")
+    return "\n".join(out)
+
+wall = "".join(
+    '<a href="articles/%s.html">%s<span>%s</span></a>' % (s["slug"], img(s["cover"], 420, alt=s["title"], sizes="(max-width: 700px) 50vw, 20vw"), "Sortie #%s" % s["slug"][7:9])
+    for s in SORTIES_2026)
+
 home = f"""
 <section class="hero" aria-labelledby="h1" style="padding:0">
-  <img src="{U}2026/04/154577-montagne_enneigee-neige-montagne_de_poudre-mont_blanc-ski-3840x2160-1-scaled.jpg" alt="" fetchpriority="high">
+  {img(DEFAULT_IMG, 1600, lazy=False, sizes="100vw")}
   <div class="wrap">
     <div>
       <h1 id="h1">Ski Club Saint Alban Leysse</h1>
@@ -176,28 +250,15 @@ home = f"""
       </div>
     </div>
     <figure>
-      <img src="{U}2026/03/IMG_20260307_153602-scaled.jpg" alt="Enfants du club sur les pistes" loading="lazy">
+      {img(U + "2026/03/IMG_20260307_153602-scaled.jpg", 700, alt="Enfants du club sur les pistes", sizes="(max-width: 860px) 100vw, 45vw")}
       <figcaption>Sortie du 7 mars 2026</figcaption>
     </figure>
   </div>
 </section>
 
-<section class="board" aria-labelledby="h-sorties">
-  <div class="wrap">
-    <h2 id="h-sorties">Les sorties 2027</h2>
-    <div class="station">
-      <h3><span class="dot" style="color:#7DB3F0" aria-hidden="true"></span>Saint-François-Longchamp</h3>
-      <ul class="dates"><li>9 janv.</li><li>16 janv.</li><li>23 janv.</li><li>30 janv.</li><li>6 févr.</li></ul>
-    </div>
-    <div class="station">
-      <h3><span class="dot" style="color:#7DB3F0" aria-hidden="true"></span>Les Karellis</h3>
-      <ul class="dates"><li>27 févr.</li><li>6 mars</li><li>13 mars</li><li class="special">20 mars : tests</li><li>27 mars</li></ul>
-    </div>
-    <p style="margin-top:28px"><a class="btn" style="color:#fff;border-color:#fff" href="les-sorties.html">Horaires, matériel et consignes</a></p>
-  </div>
-</section>
+{board("h-sorties", "Les sorties 2027")}
 
-<section aria-labelledby="h-actus" class="p-green" style="--page:var(--green)">
+<section aria-labelledby="h-actus" style="--page:var(--green)">
   <div class="wrap">
     <h2 id="h-actus">Dernières nouvelles</h2>
     <ul class="rows" style="border-top:2px solid var(--slate)">{''.join(row(p) for p in actus[:4])}</ul>
@@ -205,10 +266,11 @@ home = f"""
   </div>
 </section>
 
-<section class="bg-paper">
-  <div class="wrap cols2">
-    <figure style="margin:0"><img src="{U}2019/08/cropped-saintfrancois-1500_996-1.jpg" alt="Domaine de Saint-François-Longchamp" loading="lazy"></figure>
-    <figure style="margin:0"><img src="{U}2020/01/stalbanski-scaled.jpg" alt="Les enfants du Ski Club Saint Alban" loading="lazy"></figure>
+<section class="bg-paper" aria-labelledby="h-wall">
+  <div class="wrap">
+    <h2 id="h-wall">La saison 2026 en photos</h2>
+    <p class="lead">Une sortie par photo : touchez-en une pour voir toute la galerie.</p>
+    <div class="wall">{wall}</div>
   </div>
 </section>
 """
@@ -224,8 +286,9 @@ bourse = f"""
       <p class="when">30, 31 octobre et 1er novembre</p>
       <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Gymnase+Vivet+impasse+du+Repos+Saint-Alban-Leysse">Gymnase Vivet, impasse du Repos, Saint-Alban-Leysse</a></p>
       <p class="status"><span class="dot" aria-hidden="true"></span><span id="bourse-status" aria-live="polite">Dépôt ouvert vendredi à 9h00</span></p>
+      <p class="bactions"><a class="btn inv" href="bourse-aux-skis-2026.ics" download>{ICON("cal")}Ajouter à mon agenda</a><a class="btn inv" href="https://www.google.com/maps/dir/?api=1&amp;destination=Gymnase+Vivet+impasse+du+Repos+Saint-Alban-Leysse">{ICON("pin")}Itinéraire</a></p>
     </div>
-    <figure><a href="{B}Capture-decran-2026-10-07-164002.png"><img src="{B}Capture-decran-2026-10-07-164002.png" alt="Affiche de la bourse aux skis 2026"></a></figure>
+    <figure class="gallery solo"><a href="{B}Capture-decran-2026-10-07-164002.png" data-big="{thumb(B+'Capture-decran-2026-10-07-164002.png',1600)}">{img(B+"Capture-decran-2026-10-07-164002.png", 760, alt="Affiche de la bourse aux skis 2026", lazy=False)}</a></figure>
   </div>
 </section>
 
@@ -260,7 +323,7 @@ bourse = f"""
       <h3 class="k-vente">{dot('')}<span style="color:var(--slate)">Acheter</span></h3>
       <p>Les articles sont vendus au prix étiqueté. Ils ne sont ni garantis, ni repris.</p>
       <p>Paiement en espèces ou par carte bancaire.</p>
-      <img src="{U}2021/10/logoCB.jpg" alt="Carte bancaire acceptée" width="72" loading="lazy">
+      {img(U+"2021/10/logoCB.jpg", 144, alt="Carte bancaire acceptée", extra=' width="72"')}
     </div>
     <div>
       <h3 class="k-resti">{dot('')}<span style="color:var(--slate)">Récupérer</span></h3>
@@ -331,35 +394,22 @@ bourse = f"""
   <div class="wrap">
     <h2 id="h-aff">Affiches et informations</h2>
     <div class="gallery" style="columns:2 300px">
-      <a href="{B}Capture-decran-2026-10-18-103844.png"><img src="{B}Capture-decran-2026-10-18-103844-707x1024.png" alt="Informations sur la bourse aux skis 2026" loading="lazy" width="707" height="1024"></a>
-      <a href="{B}Capture-decran-2026-10-18-114804.png"><img src="{B}Capture-decran-2026-10-18-114804-1024x335.png" alt="Informations complémentaires sur la bourse aux skis 2026" loading="lazy" width="1024" height="335"></a>
-      <a href="{B}Capture-decran-2026-10-07-164002.png"><img src="{B}Capture-decran-2026-10-07-164002.png" alt="Affiche de la bourse aux skis 2026" loading="lazy"></a>
+      <a href="{B}Capture-decran-2026-10-18-103844.png" data-big="{thumb(B+'Capture-decran-2026-10-18-103844.png',1600)}">{img(B+"Capture-decran-2026-10-18-103844.png", 700, alt="Informations sur la bourse aux skis 2026", extra=' width="707" height="1024"')}</a>
+      <a href="{B}Capture-decran-2026-10-18-114804.png" data-big="{thumb(B+'Capture-decran-2026-10-18-114804.png',1600)}">{img(B+"Capture-decran-2026-10-18-114804.png", 700, alt="Informations complémentaires sur la bourse aux skis 2026", extra=' width="1024" height="335"')}</a>
     </div>
   </div>
 </section>
 """
 page("bourse-aux-skis-2026.html", "Bourse aux skis 2026", bourse, "red",
-     "Bourse aux skis 2026 à Saint-Alban-Leysse, gymnase Vivet : dépôt, vente, restitution, frais et règlement.",
-     "bourse-aux-skis-2026.html")
+     "30, 31 octobre et 1er novembre au gymnase Vivet de Saint-Alban-Leysse : dépôt, vente, restitution, frais et règlement.",
+     "bourse-aux-skis-2026.html", image=B + "Capture-decran-2026-10-07-164002.png")
 
 # ---------------------------------------------------------------- Sorties
 sorties = f"""
 <div class="phead"><div class="wrap"><h1>Les sorties 2027</h1><p>Dix samedis de ski, de janvier à mars, à Saint-François-Longchamp puis aux Karellis.</p></div></div>
 
-<section class="board" aria-labelledby="h-cal">
-  <div class="wrap">
-    <h2 id="h-cal">Calendrier</h2>
-    <div class="station">
-      <h3><span class="dot" style="color:#7DB3F0" aria-hidden="true"></span>Saint-François-Longchamp</h3>
-      <ul class="dates"><li>9 janv.</li><li>16 janv.</li><li>23 janv.</li><li>30 janv.</li><li>6 févr.</li></ul>
-    </div>
-    <div class="station">
-      <h3><span class="dot" style="color:#7DB3F0" aria-hidden="true"></span>Les Karellis</h3>
-      <ul class="dates"><li>27 févr.</li><li>6 mars</li><li>13 mars</li><li class="special">20 mars : tests</li><li>27 mars</li></ul>
-    </div>
-    <p style="margin-top:20px">Le 20 mars est réservé au passage des tests. La dernière sortie, le 27 mars, tombe le week-end de Pâques.</p>
-  </div>
-</section>
+{board("h-cal", "Calendrier")}
+<div class="wrap"><p style="margin:16px 0 0">Le 20 mars est réservé au passage des tests. La dernière sortie, le 27 mars, tombe le week-end de Pâques.</p></div>
 
 <section class="bg-paper" aria-labelledby="h-jour">
   <div class="wrap cols2">
@@ -387,6 +437,7 @@ sorties = f"""
   <div class="wrap cols2">
     <div>
       <h2 id="h-mat">À vérifier avant de partir</h2>
+      <p class="noprint"><button class="btn" type="button" data-print>{ICON("print")}Imprimer la liste</button></p>
       <ul class="check">
         <li>Fixations réglées</li><li>Bâtons</li><li>Casque</li><li>Masque</li><li>Gants</li><li>Crème solaire</li>
         <li>Pique-nique</li><li>Goûter</li><li>Boisson chaude</li><li>Mouchoirs</li><li>Barres de céréales</li>
@@ -398,7 +449,7 @@ sorties = f"""
       <p>La <strong>veste de ski</strong> est prêtée par le club et obligatoire. Le casque est marqué par le club ; marquez vous-même le masque, les skis et les petits vêtements.</p>
       <p>Une <strong>housse à skis</strong>, une <strong>housse à chaussures</strong> et un sac pour le goûter et le pique-nique sont obligatoires. Le club fournit une étiquette par sac ou housse : il y a environ 180 sacs noirs dans la soute !</p>
       <p>Attachez ensemble le sac et les housses de votre enfant pour qu'il les retrouve facilement en station.</p>
-      <img src="{U}2022/01/sac-225x300.png" alt="Exemple de sac et de housses attachés ensemble" width="225" height="300" loading="lazy">
+      {img(U+"2022/01/sac-225x300.png", 450, alt="Exemple de sac et de housses attachés ensemble", extra=' width="225" height="300"')}
     </div>
   </div>
 </section>
@@ -449,19 +500,29 @@ for p in posts:
     imgs = p["images"]
     cover = ""
     if p["cover"]:
-        cover = f'<figure class="cover"><img src="{e(p["cover"])}" alt="{e(p["title"])}" fetchpriority="high"></figure>'
+        cover = '<figure class="cover">%s</figure>' % img(p["cover"], 1400, alt=p["title"], lazy=False, sizes="100vw")
     gal = ""
     if len(imgs) > 1 or (imgs and imgs[0] != p["cover"]):
         tiles = "".join(
-            f'<a href="{e(src)}"><img src="{e(src)}" alt="{e(p["title"])}, photo {k+1}" loading="lazy" decoding="async"></a>'
+            '<a href="%s" data-big="%s">%s</a>' % (e(src), e(thumb(src, 1600)),
+                img(src, 360, alt="%s, photo %d" % (p["title"], k + 1), sizes="(max-width: 560px) 50vw, (max-width: 1000px) 33vw, 25vw"))
             for k, src in enumerate(imgs))
-        gal = f'<section style="padding-top:8px"><div class="wrap"><h2>{len(imgs)} photos</h2><div class="gallery">{tiles}</div></div></section>'
+        gal = ('<section style="padding-top:8px" aria-labelledby="h-gal"><div class="wrap"><h2 id="h-gal">%d photos</h2>'
+               '<p class="hint">Touchez une photo pour l’agrandir, puis glissez pour passer à la suivante.</p>'
+               '<div class="gallery">%s</div></div></section>') % (len(imgs), tiles)
+    track = ""
+    if p in SORTIES_2026:
+        balises = "".join(
+            '<li><a href="%s.html"%s><span class="bal">%d</span><span class="lab">%s</span></a></li>' % (
+                s["slug"], ' aria-current="page"' if s is p else "", k + 1, "%d %s" % (int(s["slug"][10:12]), MOIS[int(s["slug"][13:15]) - 1]))
+            for k, s in enumerate(SORTIES_2026))
+        track = '<nav class="track" aria-label="Les dix sorties de la saison 2026"><div class="wrap"><ol>%s</ol></div></nav>' % balises
     extra = ""
     if p["slug"] == "recap-2026":
-        signs = "".join(
-            f'<a class="sign b" href="{s["slug"]}.html">{e(s["title"])}<small>{len(s["images"])} photos</small></a>'
-            for s in sorted(SORTIE_SLUGS, key=lambda s: s["date"]))
-        extra = f'<section style="padding-top:8px"><div class="wrap"><h2>Les dix sorties</h2><div style="display:grid;gap:10px;max-width:520px">{signs}</div></div></section>'
+        recap_wall = "".join(
+            '<a href="%s.html">%s<span>%s, %d photos</span></a>' % (s["slug"], img(s["cover"], 420, alt=s["title"], sizes="(max-width: 700px) 50vw, 20vw"), "Sortie #" + s["slug"][7:9], len(s["images"]))
+            for s in SORTIES_2026)
+        extra = '<section style="padding-top:8px"><div class="wrap"><h2>Les dix sorties</h2><div class="wall">%s</div></div></section>' % recap_wall
     if p["slug"] == "rendez-vous-a-la-bourse-aux-skis-2025":
         extra = '<div class="wrap narrow"><p><a href="../bourse-aux-skis-2026.html">Voir la bourse aux skis 2026</a></p></div>'
     if p["slug"] == "les-inscriptions-2026":
@@ -477,6 +538,7 @@ for p in posts:
   <h1>{e(p['title'])}</h1>
   <p><time datetime="{p['date']}">Publié le {fr_date(p['date'])}</time></p>
 </div></div>
+{track}
 {cover}
 <section style="padding-bottom:24px"><div class="wrap narrow lead">{text}</div></section>
 {extra}
@@ -484,7 +546,7 @@ for p in posts:
 <div class="wrap" style="padding-bottom:64px">{pager}</div>
 """
     page(f"articles/{p['slug']}.html", p["title"], body, "green",
-         p["text"][0] if p["text"] else p["title"], None, prefix="../")
+         p["text"][0] if p["text"] else p["title"], None, prefix="../", image=p["cover"] or (imgs[0] if imgs else None))
 
 # ---------------------------------------------------------------- Membres
 membres = f"""
@@ -497,7 +559,7 @@ membres = f"""
     <p>Chaque saison commence par une sortie réservée aux encadrants, pour préparer l'année.</p>
     <p><a class="btn" href="articles/sortie-00-04-01-2026.html">Voir la sortie des encadrants 2026</a></p>
   </div>
-  <figure><img src="{U}2026/01/20260103_140045-scaled.jpg" alt="Les encadrants du club en station" loading="lazy"><figcaption>Sortie des encadrants, janvier 2026</figcaption></figure>
+  <figure>{img(U+"2026/01/20260103_140045-scaled.jpg", 700, alt="Les encadrants du club en station", sizes="(max-width: 860px) 100vw, 45vw")}<figcaption>Sortie des encadrants, janvier 2026</figcaption></figure>
 </div></section>
 <section><div class="wrap narrow">
   <h2>Vous voulez aider ?</h2>
@@ -520,7 +582,7 @@ partners = [
 ]
 tiles = ""
 for src, href, alt in partners:
-    im = f'<img src="{src}" alt="{e(alt)}" loading="lazy">'
+    im = img(src, 480, alt=alt)
     tiles += f'<a href="{href}">{im}</a>' if href else f"<div>{im}</div>"
 part = f"""
 <div class="phead"><div class="wrap"><h1>Partenaires</h1><p>Merci aux entreprises et institutions qui soutiennent le club.</p></div></div>
@@ -546,4 +608,37 @@ contact = f"""
 """
 page("contact.html", "Contact", contact, "orange", "Contacter le Ski Club Saint Alban Leysse.", "contact.html")
 
-print("Pages générées :", 9 + len(posts))
+# ---------------------------------------------------------------- Agenda (.ics) et plan du site
+def ics(path, events):
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Ski Club Saint Alban Leysse//FR", "CALSCALE:GREGORIAN",
+             "X-WR-CALNAME:Ski Club Saint Alban", "X-WR-TIMEZONE:Europe/Paris"]
+    for uid, start, end, summary, loc, descr in events:
+        lines += ["BEGIN:VEVENT", "UID:%s@st-alban-ski" % uid, "DTSTAMP:20261029T120000Z",
+                  "DTSTART;TZID=Europe/Paris:%s" % start, "DTEND;TZID=Europe/Paris:%s" % end,
+                  "SUMMARY:%s" % summary, "LOCATION:%s" % loc.replace(",", "\\,"), "DESCRIPTION:%s" % descr.replace(",", "\\,"),
+                  "END:VEVENT"]
+    lines.append("END:VCALENDAR")
+    with open(os.path.join(ROOT, path), "w", encoding="utf-8", newline="") as f:
+        f.write("\r\n".join(lines) + "\r\n")
+
+ics("calendrier-sorties-2027.ics", [
+    ("sortie-2027-%02d" % (k + 1), iso.replace("-", "") + "T110000", iso.replace("-", "") + "T184500",
+     "Ski club : sortie %d%s (%s)" % (k + 1, ", tests" if note else "", st), "Parking du collège, Saint-Alban-Leysse",
+     "Rendez-vous 11h00, départ 11h30, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.")
+    for k, (iso, lab, st, note) in enumerate(SORTIES_2027)])
+ics("bourse-aux-skis-2026.ics", [
+    ("bourse-2026-depot1", "20261030T090000", "20261030T200000", "Bourse aux skis : dépôt", "Gymnase Vivet, impasse du Repos, Saint-Alban-Leysse", "Pièce d'identité obligatoire."),
+    ("bourse-2026-depot2", "20261031T080000", "20261031T113000", "Bourse aux skis : dépôt", "Gymnase Vivet, impasse du Repos, Saint-Alban-Leysse", "Pièce d'identité obligatoire."),
+    ("bourse-2026-vente1", "20261031T140000", "20261031T193000", "Bourse aux skis : vente", "Gymnase Vivet, impasse du Repos, Saint-Alban-Leysse", "Espèces ou carte bancaire."),
+    ("bourse-2026-vente2", "20261101T090000", "20261101T163000", "Bourse aux skis : vente", "Gymnase Vivet, impasse du Repos, Saint-Alban-Leysse", "Espèces ou carte bancaire."),
+    ("bourse-2026-resti", "20261101T183000", "20261101T191500", "Bourse aux skis : restitution", "Gymnase Vivet, impasse du Repos, Saint-Alban-Leysse", "Reçu de dépôt obligatoire."),
+])
+
+urls = ["index.html", "bourse-aux-skis-2026.html", "les-sorties.html", "actualites.html", "archives.html",
+        "membres.html", "partenaires.html", "contact.html"] + ["articles/%s.html" % p["slug"] for p in posts]
+with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+    f.write("".join("  <url><loc>%s%s</loc></url>\n" % (SITE_URL, u) for u in urls))
+    f.write("</urlset>\n")
+
+print("Pages générées :", len(urls))

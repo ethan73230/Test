@@ -1,0 +1,97 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Ski Club Saint Alban Leysse//FR
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Ski Club Saint Alban
+X-WR-TIMEZONE:Europe/Paris
+BEGIN:VEVENT
+UID:sortie-2027-01@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270109T110000
+DTEND;TZID=Europe/Paris:20270109T184500
+SUMMARY:Ski club : sortie 1 (Saint-François-Longchamp)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-02@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270116T110000
+DTEND;TZID=Europe/Paris:20270116T184500
+SUMMARY:Ski club : sortie 2 (Saint-François-Longchamp)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-03@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270123T110000
+DTEND;TZID=Europe/Paris:20270123T184500
+SUMMARY:Ski club : sortie 3 (Saint-François-Longchamp)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-04@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270130T110000
+DTEND;TZID=Europe/Paris:20270130T184500
+SUMMARY:Ski club : sortie 4 (Saint-François-Longchamp)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-05@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270206T110000
+DTEND;TZID=Europe/Paris:20270206T184500
+SUMMARY:Ski club : sortie 5 (Saint-François-Longchamp)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-06@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270227T110000
+DTEND;TZID=Europe/Paris:20270227T184500
+SUMMARY:Ski club : sortie 6 (Les Karellis)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-07@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270306T110000
+DTEND;TZID=Europe/Paris:20270306T184500
+SUMMARY:Ski club : sortie 7 (Les Karellis)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-08@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270313T110000
+DTEND;TZID=Europe/Paris:20270313T184500
+SUMMARY:Ski club : sortie 8 (Les Karellis)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-09@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270320T110000
+DTEND;TZID=Europe/Paris:20270320T184500
+SUMMARY:Ski club : sortie 9, tests (Les Karellis)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:sortie-2027-10@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20270327T110000
+DTEND;TZID=Europe/Paris:20270327T184500
+SUMMARY:Ski club : sortie 10 (Les Karellis)
+LOCATION:Parking du collège\, Saint-Alban-Leysse
+DESCRIPTION:Rendez-vous 11h00\, départ 11h30\, retour vers 18h45. Pique-nique dans le sac. Veste du club obligatoire.
+END:VEVENT
+END:VCALENDAR

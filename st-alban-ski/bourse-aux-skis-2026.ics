@@ -1,0 +1,52 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Ski Club Saint Alban Leysse//FR
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Ski Club Saint Alban
+X-WR-TIMEZONE:Europe/Paris
+BEGIN:VEVENT
+UID:bourse-2026-depot1@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20261030T090000
+DTEND;TZID=Europe/Paris:20261030T200000
+SUMMARY:Bourse aux skis : dépôt
+LOCATION:Gymnase Vivet\, impasse du Repos\, Saint-Alban-Leysse
+DESCRIPTION:Pièce d'identité obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:bourse-2026-depot2@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20261031T080000
+DTEND;TZID=Europe/Paris:20261031T113000
+SUMMARY:Bourse aux skis : dépôt
+LOCATION:Gymnase Vivet\, impasse du Repos\, Saint-Alban-Leysse
+DESCRIPTION:Pièce d'identité obligatoire.
+END:VEVENT
+BEGIN:VEVENT
+UID:bourse-2026-vente1@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20261031T140000
+DTEND;TZID=Europe/Paris:20261031T193000
+SUMMARY:Bourse aux skis : vente
+LOCATION:Gymnase Vivet\, impasse du Repos\, Saint-Alban-Leysse
+DESCRIPTION:Espèces ou carte bancaire.
+END:VEVENT
+BEGIN:VEVENT
+UID:bourse-2026-vente2@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20261101T090000
+DTEND;TZID=Europe/Paris:20261101T163000
+SUMMARY:Bourse aux skis : vente
+LOCATION:Gymnase Vivet\, impasse du Repos\, Saint-Alban-Leysse
+DESCRIPTION:Espèces ou carte bancaire.
+END:VEVENT
+BEGIN:VEVENT
+UID:bourse-2026-resti@st-alban-ski
+DTSTAMP:20261029T120000Z
+DTSTART;TZID=Europe/Paris:20261101T183000
+DTEND;TZID=Europe/Paris:20261101T191500
+SUMMARY:Bourse aux skis : restitution
+LOCATION:Gymnase Vivet\, impasse du Repos\, Saint-Alban-Leysse
+DESCRIPTION:Reçu de dépôt obligatoire.
+END:VEVENT
+END:VCALENDAR

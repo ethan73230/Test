@@ -254,3 +254,111 @@ th.fee { text-align: right; }
 .bg-paper { background: var(--paper); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* =========================================================== v3 */
+.dot.ice { color: #7DB3F0; }
+.btn.inv { color: #fff; border-color: rgba(255,255,255,.85); }
+.btn.inv:hover { background: #fff; color: var(--slate); }
+.board-actions, .bactions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.bactions { margin: 0 0 40px; }
+.bhero .status { margin-bottom: 16px; }
+.hint { color: var(--slate-2); margin-top: -8px; }
+.board time { font: inherit; }
+
+/* prochain rendez-vous : bandeau sous l'en-tête */
+.nextup { background: var(--slate); color: #fff; }
+.nextup a { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 8px 0; text-decoration: none; }
+.nextup .tag { flex: none; background: var(--c, var(--red)); color: #fff; font: 700 .95rem/1 var(--head); padding: 7px 10px; }
+.nextup .tag.b { --c: var(--blue); }
+.nextup .what { font: 600 1.1rem/1.25 var(--head); }
+.nextup .what em { font-style: normal; font-weight: 500; opacity: .85; }
+.nextup .go { margin-left: auto; flex: none; font: 600 1rem var(--head); text-decoration: underline; text-underline-offset: 3px; }
+.nextup a:hover .go { text-decoration-thickness: 2px; }
+@media (max-width: 600px) { .nextup .go { display: none; } }
+
+/* planche contact (4 photos) dans les listes */
+.sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 200px; }
+.sheet img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--rule); }
+@media (max-width: 700px) {
+  .sheet { grid-column: 1 / -1; order: -1; width: 100%; grid-template-columns: repeat(4, 1fr); }
+}
+
+/* mur de photos (une par sortie) */
+.wall { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.wall a { position: relative; display: block; text-decoration: none; overflow: hidden; background: var(--rule); }
+.wall img { width: 100%; aspect-ratio: 3/4; object-fit: cover; transition: transform .35s ease; }
+.wall a:hover img { transform: scale(1.04); }
+.wall span {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 10px 8px;
+  background: linear-gradient(transparent, rgba(12,20,27,.82)); color: #fff; font: 700 1.05rem/1.2 var(--head);
+}
+@media (max-width: 900px) { .wall { grid-template-columns: repeat(2, 1fr); } }
+
+/* parcours de la saison : 10 balises sur une piste */
+.track { background: var(--paper); border-bottom: 1px solid var(--rule); overflow-x: auto; }
+.track ol { list-style: none; margin: 0; padding: 18px 0 14px; display: grid; grid-template-columns: repeat(10, minmax(64px, 1fr)); position: relative; }
+.track ol::before { content: ""; position: absolute; left: 22px; right: 22px; top: 39px; height: 4px; background: var(--rule); }
+.track a { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; min-height: 44px; }
+.track .bal {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--paper); border: 3px solid var(--blue); color: var(--blue); font: 800 1.15rem var(--head);
+}
+.track .lab { font: 600 .9rem/1.1 var(--head); color: var(--slate-2); white-space: nowrap; }
+.track a:hover .bal { background: #E4EEFB; }
+.track a[aria-current="page"] .bal { background: var(--blue); color: #fff; }
+.track a[aria-current="page"] .lab { color: var(--slate); }
+@media (max-width: 700px) { .track ol { min-width: 680px; } }
+
+.gallery.solo { columns: 1; margin: 0; }
+.gallery.solo a { margin: 0; }
+.gallery img { min-height: 80px; }
+
+/* visionneuse v3 */
+.lb .dl { position: absolute; bottom: 12px; right: 16px; width: auto; padding: 0 16px; height: 44px; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 8px; background: #fff; color: var(--slate); font-family: var(--head); font-weight: 700; }
+.lb .dl svg { width: 18px; height: 18px; }
+.lb img { touch-action: pan-y pinch-zoom; transition: opacity .15s; }
+.lb img.loading { opacity: .35; }
+
+/* ---------------- mode sombre */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --snow: #121A21; --paper: #18232C; --slate: #E6EDF2; --slate-2: #A8B6C1; --rule: #2C3A46;
+    --blue: #5B9BEA; --green: #3DB872; --red: #F0565C; --black: #E6EDF2;
+  }
+  .top { background: #18232C; }
+  .phead, .bhero { color: #fff; }
+  .p-green .phead { background: #146B3D; } .p-blue .phead { background: #1A4E96; }
+  .p-red .phead, .bhero { background: #A51C22; } .p-black .phead { background: #26323C; }
+  .p-orange .phead { background: #A8470B; }
+  .top { border-bottom-color: currentColor; }
+  .board, .foot, .nextup { background: #0C1217; }
+  .sign.g { --c: #13874B; } .sign.b { --c: #1659B8; } .sign.r { --c: #CC2229; } .sign.k { --c: #2A363F; }
+  .btn.solid { color: #0C1217; }
+  .net { background: #2A1C12; }
+  .net strong { color: #FFB27A; }
+  .nope li::before, .nope li::after { background: var(--red); }
+  .k-forfait, .menu .c-orange { color: #F59A5C; }
+  .menu .c-black { color: #E6EDF2; }
+  .status { background: #fff; color: #1D2B36; }
+  .logos > * { background: #fff; }
+  .logos a:hover { background: #E8EEF2; }
+  .track .bal { background: var(--paper); }
+  .track a:hover .bal { background: #1F3247; }
+  .track a[aria-current="page"] .bal { color: #0C1217; }
+  .bhero figure { background: #fff; }
+  .burger { border-color: var(--slate); color: var(--slate); }
+}
+
+/* ---------------- impression (liste de matériel, bourse) */
+@media print {
+  .top, .nextup, .foot, .burger, .noprint, .track, .board-actions, .bactions, .pager, .hero .post { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .phead, .board, .bhero { background: none !important; color: #000 !important; padding: 0 0 12px; }
+  .board h2, .board h3, .bhero h1 { color: #000; }
+  .dates li { border: 1px solid #000; background: none; color: #000; }
+  main section { padding: 14px 0; }
+  .check { columns: 2; }
+  .check li::before { content: ""; left: 0; top: 9px; width: 12px; height: 12px; border: 1.5px solid #000; transform: none; }
+  a { text-decoration: none; }
+}
+.lb .count { left: 16px; right: auto; bottom: 12px; margin: 0; min-height: 44px; display: flex; align-items: center; text-align: left; }

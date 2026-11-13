@@ -53,7 +53,7 @@ tbody tr.row:focus-visible{outline:2px solid var(--s1);outline-offset:-2px}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
 .kv div{background:var(--chip);border-radius:8px;padding:8px 10px}
 .kv b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
-.kv span{font-size:12px;color:var(--text2)}
+.kv div>span{font-size:12px;color:var(--text2)}
 .bar{display:flex;gap:2px;height:22px;margin:8px 0 6px}
 .bar i{display:block;height:100%;min-width:2px}
 .bar i:first-child{border-radius:4px 0 0 4px}.bar i:last-child{border-radius:0 4px 4px 0}
@@ -158,6 +158,8 @@ function planCard(p) {
       : `<div class="kv"><div><b>${esc(sz.qty)}</b><span>Actions (limite : ${esc(sz.bound_by)})</span></div><div><b>${usd(sz.cost)}</b><span>Montant</span></div><div><b>${usd(sz.max_loss)}</b><span>Perte max au stop</span></div></div>`;
   }
   if (rk) h += `<p><span class="badge ${rk.verdict === "PASS" ? "pass" : "block"}">${rk.verdict === "PASS" ? "Règles respectées" : "Bloqué par les règles"}</span> ${rk.reasons && rk.reasons.length ? '<span class="small">' + esc(rk.reasons.join(" · ")) + "</span>" : ""}</p>`;
+  if (p.taken) h += `<p><span class="chip hit">Pris dans le journal simulé</span></p>`;
+  else if (p.skipped) h += `<p class="small">Non pris dans le journal : ${esc(p.skipped)}.</p>`;
   if (tk) h += `<div class="small"><b>Ticket (non envoyé) :</b> ${esc(tk.plain)}. Compte ${tk.paper ? "fictif (paper)" : "RÉEL"}. Un ordre ne part que depuis Claude, après ton « oui ».</div>`;
   return h + "</div>";
 }
@@ -170,6 +172,20 @@ function render(d) {
   const hits = {}; (d.scan?.hits || []).forEach((h) => (hits[h.symbol] = h));
   let h = "";
   if (d.demo) h += `<div class="banner"><b>Données d'exemple.</b> Ces chiffres viennent du jeu de test du pack (séance du 19 octobre 2026). Ils seront remplacés par les données en direct de ta liste dès la première mise à jour automatique.</div>`;
+
+  const j = d.journal;
+  if (j) {
+    const t = j.today, a = j.all, ST = { open: "En cours", target: "Objectif touché", stop: "Stop touché", flat: "Clôturé en fin de séance" };
+    const money = (n) => `<span class="${n > 0 ? "up" : n < 0 ? "down" : ""}">${n > 0 ? "+" : n < 0 ? "−" : ""}${usd(Math.abs(n))}</span>`;
+    h += `<div class="card"><h2>Journal de trading simulé</h2><p class="sub">Paper trading : aucun argent réel, aucun ordre envoyé. Chaque plan validé est « acheté » au cours du moment, puis suivi bougie par bougie jusqu'au stop, à l'objectif ou à la sortie de fin de séance.</p>
+      <div class="kv"><div><b>${t.trades}</b><span>Trades aujourd'hui</span></div><div><b>${t.target}</b><span>Objectifs touchés</span></div><div><b>${t.stop}</b><span>Stops touchés</span></div>
+      <div><b>${t.open}</b><span>En cours</span></div><div><b>${money(t.pnl)}</b><span>Résultat du jour (clôturés)</span></div><div><b>${money(a.pnl)}</b><span>Résultat total (${a.trades} trades)</span></div><div><b>${usd(j.equity)}</b><span>Solde simulé (départ ${usd(j.start, 0)})</span></div></div>
+      ${j.trades.length ? `<div class="scroll"><table><thead><tr><th>Date</th><th>Action</th><th class="num">Qté</th><th>Achat (NY)</th><th class="num">Prix</th><th class="num">Stop</th><th class="num">Objectif</th><th>État</th><th class="num">Sortie</th><th class="num">Résultat</th></tr></thead><tbody>
+      ${j.trades.map((x) => `<tr><td>${esc(x.date)}</td><td class="tk">${esc(x.symbol)}</td><td class="num">${esc(x.qty)}</td><td>${esc(x.entry_time)}</td><td class="num">${usd(x.entry)}</td><td class="num">${usd(x.stop)}</td><td class="num">${usd(x.target)}</td>
+        <td><span class="chip">${esc(ST[x.status] || x.status)}</span></td><td class="num">${x.exit != null ? usd(x.exit) + " à " + esc(x.exit_time) : '<span class="muted">' + usd(x.last) + "</span>"}</td>
+        <td class="num">${x.status === "open" ? '<span class="muted">' + usd(x.qty * ((x.last ?? x.entry) - x.entry)) + " latent</span>" : money(x.pnl)}</td></tr>`).join("")}</tbody></table></div>`
+      : '<div class="empty">Aucun trade pour l\'instant. Le premier peut arriver après 9h50 à New York (15h50 à Paris), quand une action à ta portée casse son range d\'ouverture.</div>'}</div>`;
+  }
 
   const rows = d.watchlist.map((s) => {
     const q = d.quotes[s] || {}, e = d.entries?.[s], hit = hits[s];

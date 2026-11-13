@@ -15,12 +15,15 @@ gratuits de Yahoo Finance sont non officiels et peuvent avoir du retard.
 
 ## Fonctionnement
 
-Le workflow `.github/workflows/trading-dashboard.yml` tourne tout seul : une fois
-avant l'ouverture, puis toutes les 15 minutes pendant la séance de New York, du
-lundi au vendredi. Il analyse toutes les actions américaines, écrit
-`data/dashboard.json`, puis copie la page dans la branche `gh-pages`
-(dossier `trading-dashboard/` uniquement). Lancement manuel : onglet Actions >
-« Tableau de bord trading » > Run workflow.
+Le workflow `.github/workflows/trading-dashboard.yml` tourne en boucle pendant la
+séance de New York : une mise à jour toutes les 8 minutes environ, jusqu'à la
+clôture. Chaque mise à jour analyse toutes les actions américaines, écrit
+`data/dashboard.json` et tient le journal simulé `data/journal.json`.
+
+Les horaires planifiés de GitHub arrivent souvent avec des heures de retard.
+Pour être sûr que la séance démarre à l'heure : onglet Actions >
+« Tableau de bord trading » > Run workflow, une fois dans la journée. Le job
+s'arrête tout seul après la clôture.
 
 Le site est servi par GitHub Pages à l'adresse `<url-pages>/trading-dashboard/`.
 

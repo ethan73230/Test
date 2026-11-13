@@ -1,11 +1,14 @@
 name: Tableau de bord trading
 
+# Un seul lancement suffit pour toute la séance : le job tourne en boucle
+# (une mise à jour toutes les 8 minutes environ) jusqu'à la clôture de New York.
+# Les horaires planifiés de GitHub arrivent souvent avec des heures de retard,
+# on ne compte donc pas sur eux pour chaque mise à jour.
+
 on:
   workflow_dispatch:
   schedule:
-    # Avant l'ouverture, puis toutes les 15 minutes pendant la séance de New York (heures UTC, lundi-vendredi)
-    - cron: "15 12 * * 1-5"
-    - cron: "5,20,35,50 13-21 * * 1-5"
+    - cron: "20 12-20 * * 1-5"
   push:
     paths:
       - "trading-dashboard/trader/**"
@@ -14,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: trading-dashboard
@@ -22,38 +26,37 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 345
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Lancer les skills et générer les données
+      - name: Boucle de séance
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
-        run: python3 trading-dashboard/tools/build_data.py
-      - name: Enregistrer les nouvelles données
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add trading-dashboard/data
-          if ! git diff --cached --quiet; then
-            git commit -m "Tableau de bord trading : mise à jour des données"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
-          fi
-      - name: Publier la page sur gh-pages (dossier trading-dashboard uniquement)
-        run: |
-          if git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
-            git fetch --depth 1 origin gh-pages
-            git worktree add /tmp/pages FETCH_HEAD
-            mkdir -p /tmp/pages/trading-dashboard/data
-            cp trading-dashboard/index.html /tmp/pages/trading-dashboard/index.html
-            cp trading-dashboard/data/dashboard.json /tmp/pages/trading-dashboard/data/dashboard.json
-            cd /tmp/pages
-            git add trading-dashboard
+          start=$(date +%s)
+          while true; do
+            git pull -q --rebase origin "${GITHUB_REF_NAME}" || true
+            python3 trading-dashboard/tools/build_data.py || echo "mise à jour incomplète"
+            git add trading-dashboard/data
             if ! git diff --cached --quiet; then
-              git commit -m "Tableau de bord trading : publication"
-              git push origin HEAD:gh-pages
+              git commit -q -m "Tableau de bord trading : mise à jour des données"
+              git pull -q --rebase origin "${GITHUB_REF_NAME}" || true
+              git push -q origin "HEAD:${GITHUB_REF_NAME}" || echo "push refusé, nouvel essai au prochain tour"
             fi
-          fi
+            ny=$((10#$(TZ=America/New_York date +%H%M)))
+            dow=$(TZ=America/New_York date +%u)
+            # Hors séance (week-end, avant 7h ou après 16h05 à New York) : une seule mise à jour.
+            if [ "$dow" -gt 5 ] || [ "$ny" -lt 700 ] || [ "$ny" -ge 1605 ]; then break; fi
+            # Un job GitHub est limité à 6 heures : au bout de 5 heures, il passe le relais à un nouveau lancement.
+            if [ $(( $(date +%s) - start )) -gt 18000 ]; then
+              gh workflow run trading-dashboard.yml --ref "${GITHUB_REF_NAME}" || true
+              break
+            fi
+            if [ "$ny" -lt 935 ]; then sleep 900; else sleep 180; fi
+          done

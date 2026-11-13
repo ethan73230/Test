@@ -26,8 +26,9 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS = os.path.join(ROOT, "skills")
 UA = "Mozilla/5.0 (compatible; day-trader-dashboard/1.0)"
-MAX_PLANS = 10         # plafond de plans de trade détaillés par mise à jour
-MAX_LIST = 20          # actions affichées en mode « tout le marché »
+MAX_PLANS = 25         # plafond de plans de trade calculés par mise à jour (temps de calcul)
+MAX_LIST = 40          # actions suivies en mode « tout le marché »
+FRESH_MIN = 30         # une cassure plus vieille que ça (minutes) n'est plus prise
 
 STEPS = []             # journal affiché en bas de la page
 
@@ -84,6 +85,64 @@ def fetch_history(sym):
     raise RuntimeError(str(last))
 
 
+def bars_from_result(res):
+    """Bougies 5 minutes du jour : [(date NY, 'HH:MM' NY, high, low, close)]."""
+    off = int((res.get("meta") or {}).get("gmtoffset") or 0)
+    q = ((res.get("indicators") or {}).get("quote") or [{}])[0]
+    out = []
+    for i, t in enumerate(res.get("timestamp") or []):
+        try:
+            h, l, c = q["high"][i], q["low"][i], q["close"][i]
+        except (KeyError, IndexError):
+            continue
+        if h is None or l is None or c is None or t % 300:
+            continue
+        d = datetime.datetime.fromtimestamp(t + off, datetime.timezone.utc)
+        out.append((d.strftime("%Y-%m-%d"), d.strftime("%H:%M"), float(h), float(l), float(c)))
+    return out
+
+
+def fetch_bars(sym, fx=None):
+    if fx:
+        with open(os.path.join(fx, "trader-entry", "%s-2026-10-19-5m.json" % sym)) as fh:
+            return bars_from_result(json.load(fh)["chart"]["result"][0])
+    last = None
+    for host in ("query2", "query1"):
+        url = "https://%s.finance.yahoo.com/v8/finance/chart/%s?range=1d&interval=5m" % (host, sym.replace(".", "-"))
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return bars_from_result(json.loads(r.read())["chart"]["result"][0])
+        except Exception as e:
+            last = e
+            time.sleep(1)
+    raise RuntimeError(str(last))
+
+
+def settle(tr, bars, today, hhmm, flat_by):
+    """Fait avancer un trade ouvert bougie par bougie. Le stop passe avant l'objectif dans une même bougie."""
+    for d, t, h, l, c in bars:
+        if d != tr["date"] or t < tr["entry_time"] or t >= flat_by:
+            continue
+        tr["last"] = c
+        end = (datetime.datetime.strptime(t, "%H:%M") + datetime.timedelta(minutes=5)).strftime("%H:%M")
+        if d == today and end > hhmm:
+            break                                   # bougie pas encore terminée
+        if l <= tr["stop"]:
+            return close_trade(tr, "stop", tr["stop"], end)
+        if h >= tr["target"]:
+            return close_trade(tr, "target", tr["target"], end)
+    if tr["date"] != today or hhmm >= flat_by:
+        return close_trade(tr, "flat", tr.get("last", tr["entry"]), flat_by)
+    return tr
+
+
+def close_trade(tr, status, price, when):
+    tr.update(status=status, exit=round(price, 2), exit_time=when,
+              pnl=round(tr["qty"] * (price - tr["entry"]), 2))
+    return tr
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(ROOT, "data", "dashboard.json"))
@@ -91,6 +150,7 @@ def main():
     ap.add_argument("--config", default=os.path.join(ROOT, "trader", "config.json"))
     ap.add_argument("--demo", metavar="DIR", help="dossier tests/fixtures du pack (hors ligne)")
     ap.add_argument("--now", help='heure de New York simulée, ex. "2026-10-19 10:15"')
+    ap.add_argument("--journal", default=os.path.join(ROOT, "data", "journal.json"))
     a = ap.parse_args()
 
     with open(a.watchlist, encoding="utf-8") as fh:
@@ -99,6 +159,11 @@ def main():
     with open(a.config, encoding="utf-8") as fh:
         config = json.load(fh)
     sec_ua = (os.environ.get("SEC_USER_AGENT") or "").strip()
+    try:
+        with open(a.journal, encoding="utf-8") as fh:
+            journal = json.load(fh)
+    except (OSError, ValueError):
+        journal = {"trades": []}
 
     fx = a.demo
     now = ["--now", a.now] if a.now else []
@@ -229,8 +294,13 @@ def main():
 
     # 5-9. Pour chaque cassure : exit -> timemachine -> budget -> risk -> broker (ticket, jamais envoyé)
     plans, notes = [], {k: [] for k in ("trader-exit", "trader-timemachine", "trader-budget", "trader-risk", "trader-broker")}
-    nmax = min(MAX_PLANS, int(config.get("max_trades_per_day") or MAX_PLANS))
-    trig = [t for t in tickers if entries.get(t, {}).get("status") == "triggered"][:nmax]
+    clock = out.get("clock") or {}
+    today = clock.get("date") or ""
+    hhmm = (clock.get("now_new_york") or " 00:00").split(" ")[1]
+    flat_by = config.get("flat_by") or "15:55"
+    done_today = {t["symbol"] for t in journal["trades"] if t["date"] == today}
+    trig = [t for t in tickers if entries.get(t, {}).get("status") == "triggered"]
+    trig = ([t for t in trig if t not in done_today] + [t for t in trig if t in done_today])[:MAX_PLANS]
     for t in trig:
         w = tempfile.mkdtemp(prefix="plan-")
         os.makedirs(os.path.join(w, "trader"))
@@ -239,6 +309,10 @@ def main():
         if fx:
             args += ["--offline", os.path.join(fx, "trader-entry", "%s-2026-10-19-5m.json" % t)]
         run("trader-entry", "entry.py", args, w)
+        try:                                     # cours frais : la taille et le risque partent du prix actuel s'il est plus haut
+            shutil.copy(os.path.join(work, "trader", "prices.json"), os.path.join(w, "trader", "prices.json"))
+        except OSError:
+            pass
         item = {"symbol": t, "entry": entries[t]}
         plan, err = run("trader-exit", "exit.py", ["plan", "--write", "--json"] + now, w)
         item["plan"] = plan
@@ -268,6 +342,69 @@ def main():
         plans.append(item)
         shutil.rmtree(w, ignore_errors=True)
     out["plans"] = plans
+
+    # Journal de paper trading : exécution simulée des plans validés, puis suivi jusqu'au stop, à l'objectif ou à la clôture
+    budget = float(config.get("budget") or 0)
+    buffer_usd = budget * float(config.get("cash_buffer_pct") or 0) / 100.0
+    jn = []
+    if today:
+        for tr in journal["trades"]:
+            if tr["status"] != "open":
+                continue
+            try:
+                settle(tr, fetch_bars(tr["symbol"], fx), today, hhmm, flat_by)
+            except Exception as e:
+                jn.append("%s: suivi impossible (%s)" % (tr["symbol"], str(e)[:80]))
+                if tr["date"] != today:
+                    close_trade(tr, "flat", tr.get("last", tr["entry"]), flat_by)
+            if not fx:
+                time.sleep(0.3)
+        opened = 0
+        for it in plans:
+            sz, rk = it.get("sizing") or {}, ((it.get("risk") or {}).get("results") or [{}])[0]
+            sym, trg = it["symbol"], (it.get("entry") or {})
+            if sym in done_today or not sz.get("qty") or rk.get("verdict") != "PASS":
+                continue
+            if (trg.get("minutes_since") or 0) > FRESH_MIN:
+                it["skipped"] = "cassure trop ancienne (%s min)" % trg.get("minutes_since")
+                continue
+            todays = [t for t in journal["trades"] if t["date"] == today]
+            lost = -sum(t.get("pnl", 0) for t in todays if t.get("pnl", 0) < 0)
+            equity = budget + sum(t.get("pnl", 0) for t in journal["trades"] if t["status"] != "open")
+            cash = equity - sum(t["cost"] for t in journal["trades"] if t["status"] == "open")
+            if len(todays) >= int(config.get("max_trades_per_day") or 10 ** 6):
+                it["skipped"] = "nombre maximum de trades du jour atteint"
+            elif lost >= float(config.get("max_daily_loss_usd") or 10 ** 9):
+                it["skipped"] = "perte maximale du jour atteinte"
+            elif sz["cost"] > cash - buffer_usd:
+                it["skipped"] = "pas assez de cash libre (%.2f $ disponibles)" % max(cash - buffer_usd, 0)
+            else:
+                tm = (it.get("timemachine") or {})
+                journal["trades"].append({
+                    "date": today, "symbol": sym, "qty": int(sz["qty"]), "entry": float(sz["entry"]),
+                    "entry_time": hhmm, "signal_time": (trg.get("trigger") or {}).get("close_time"),
+                    "stop": float(sz["stop"]), "target": float(sz["target"]), "cost": float(sz["cost"]),
+                    "max_loss": float(sz["max_loss"]), "status": "open", "last": float(sz["entry"]),
+                    "p_target": (tm.get("mc") or {}).get("p_target"), "p_stop": (tm.get("mc") or {}).get("p_stop")})
+                done_today.add(sym)
+                opened += 1
+                it["taken"] = True
+        closed = [t for t in journal["trades"] if t["status"] != "open"]
+        todays = [t for t in journal["trades"] if t["date"] == today]
+        summ = lambda ts: {"trades": len(ts), "open": sum(t["status"] == "open" for t in ts),
+                           "target": sum(t["status"] == "target" for t in ts), "stop": sum(t["status"] == "stop" for t in ts),
+                           "flat": sum(t["status"] == "flat" for t in ts),
+                           "pnl": round(sum(t.get("pnl", 0) for t in ts if t["status"] != "open"), 2),
+                           "open_pnl": round(sum(t["qty"] * (t.get("last", t["entry"]) - t["entry"]) for t in ts if t["status"] == "open"), 2)}
+        out["journal"] = {"date": today, "start": budget, "equity": round(budget + sum(t.get("pnl", 0) for t in closed), 2),
+                          "today": summ(todays), "all": summ(journal["trades"]),
+                          "trades": sorted(journal["trades"], key=lambda t: (t["date"], t["entry_time"]), reverse=True)[:80]}
+        step("journal (simulation)", True, "%d trade(s) ouvert(s) à cette mise à jour ; aujourd'hui : %d trade(s), %d en cours%s" % (
+            opened, len(todays), out["journal"]["today"]["open"], (" ; " + jn[0]) if jn else ""))
+        os.makedirs(os.path.dirname(a.journal), exist_ok=True)
+        with open(a.journal, "w", encoding="utf-8") as fh:
+            json.dump(journal, fh, ensure_ascii=False, indent=1)
+            fh.write("\n")
     okkey = {"trader-exit": "plan", "trader-timemachine": "timemachine", "trader-budget": "sizing",
              "trader-risk": "risk", "trader-broker": "tickets"}
     for k, v in notes.items():

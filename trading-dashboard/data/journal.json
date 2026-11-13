@@ -1,3 +1,36 @@
 {
- "trades": []
+ "trades": [
+  {
+   "date": "2026-11-13",
+   "symbol": "RKT",
+   "qty": 2,
+   "entry": 13.77,
+   "entry_time": "11:02",
+   "signal_time": "10:50",
+   "stop": 13.63,
+   "target": 14.05,
+   "cost": 27.54,
+   "max_loss": 0.28,
+   "status": "open",
+   "last": 13.77,
+   "p_target": 0.2451,
+   "p_stop": 0.6257
+  },
+  {
+   "date": "2026-11-13",
+   "symbol": "WEN",
+   "qty": 3,
+   "entry": 8.31,
+   "entry_time": "11:02",
+   "signal_time": "10:40",
+   "stop": 8.21,
+   "target": 8.45,
+   "cost": 24.93,
+   "max_loss": 0.3,
+   "status": "open",
+   "last": 8.31,
+   "p_target": 0.2264,
+   "p_stop": 0.5434
+  }
+ ]
 }

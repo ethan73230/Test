@@ -12,7 +12,7 @@
    "cost": 27.54,
    "max_loss": 0.28,
    "status": "open",
-   "last": 13.77,
+   "last": 13.8149995803833,
    "p_target": 0.2451,
    "p_stop": 0.6257
   },
@@ -28,7 +28,7 @@
    "cost": 24.93,
    "max_loss": 0.3,
    "status": "open",
-   "last": 8.31,
+   "last": 8.289999961853027,
    "p_target": 0.2264,
    "p_stop": 0.5434
   }

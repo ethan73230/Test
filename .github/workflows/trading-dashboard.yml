@@ -1,0 +1,59 @@
+name: Tableau de bord trading
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Avant l'ouverture, puis toutes les 30 minutes pendant la séance de New York (heures UTC, lundi-vendredi)
+    - cron: "15 12 * * 1-5"
+    - cron: "5,35 13-21 * * 1-5"
+  push:
+    paths:
+      - "trading-dashboard/trader/**"
+      - "trading-dashboard/tools/**"
+      - ".github/workflows/trading-dashboard.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trading-dashboard
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Lancer les skills et générer les données
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python3 trading-dashboard/tools/build_data.py
+      - name: Enregistrer les nouvelles données
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trading-dashboard/data/dashboard.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Tableau de bord trading : mise à jour des données"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+      - name: Publier la page sur gh-pages (dossier trading-dashboard uniquement)
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
+            git fetch --depth 1 origin gh-pages
+            git worktree add /tmp/pages FETCH_HEAD
+            mkdir -p /tmp/pages/trading-dashboard/data
+            cp trading-dashboard/index.html /tmp/pages/trading-dashboard/index.html
+            cp trading-dashboard/data/dashboard.json /tmp/pages/trading-dashboard/data/dashboard.json
+            cd /tmp/pages
+            git add trading-dashboard
+            if ! git diff --cached --quiet; then
+              git commit -m "Tableau de bord trading : publication"
+              git push origin HEAD:gh-pages
+            fi
+          fi

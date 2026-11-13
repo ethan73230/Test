@@ -12,7 +12,7 @@
    "cost": 27.54,
    "max_loss": 0.28,
    "status": "open",
-   "last": 13.895000457763672,
+   "last": 13.880000114440918,
    "p_target": 0.2451,
    "p_stop": 0.6257
   },
@@ -44,9 +44,25 @@
    "cost": 28.55,
    "max_loss": 0.55,
    "status": "open",
-   "last": 5.735000133514404,
+   "last": 5.730000019073486,
    "p_target": 0.0058,
    "p_stop": 0.2999
+  },
+  {
+   "date": "2026-11-13",
+   "symbol": "COLD",
+   "qty": 1,
+   "entry": 16.31,
+   "entry_time": "11:46",
+   "signal_time": "11:20",
+   "stop": 16.14,
+   "target": 16.65,
+   "cost": 16.31,
+   "max_loss": 0.17,
+   "status": "open",
+   "last": 16.31,
+   "p_target": 0.1206,
+   "p_stop": 0.3849
   }
  ]
 }

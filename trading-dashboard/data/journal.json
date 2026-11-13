@@ -12,7 +12,7 @@
    "cost": 27.54,
    "max_loss": 0.28,
    "status": "open",
-   "last": 13.8149995803833,
+   "last": 13.845000267028809,
    "p_target": 0.2451,
    "p_stop": 0.6257
   },
@@ -28,9 +28,25 @@
    "cost": 24.93,
    "max_loss": 0.3,
    "status": "open",
-   "last": 8.289999961853027,
+   "last": 8.295000076293945,
    "p_target": 0.2264,
    "p_stop": 0.5434
+  },
+  {
+   "date": "2026-11-13",
+   "symbol": "MFA",
+   "qty": 5,
+   "entry": 5.71,
+   "entry_time": "11:24",
+   "signal_time": "11:05",
+   "stop": 5.6,
+   "target": 5.84,
+   "cost": 28.55,
+   "max_loss": 0.55,
+   "status": "open",
+   "last": 5.71,
+   "p_target": 0.0058,
+   "p_stop": 0.2999
   }
  ]
 }

@@ -6,19 +6,19 @@
       "shares": 0.7789612675084233,
       "entry_price": 16.795000076293945,
       "entry_date": "2026-11-06",
-      "days_held": 13
+      "days_held": 14
     },
     "GME": {
       "shares": 0.5193933435203741,
       "entry_price": 25.59000015258789,
       "entry_date": "2026-11-09",
-      "days_held": 12
+      "days_held": 13
     },
     "AFRM": {
       "shares": 0.25851041212665404,
       "entry_price": 60.52000045776367,
       "entry_date": "2026-11-25",
-      "days_held": 0
+      "days_held": 1
     }
   },
   "last_prices": {
@@ -69,7 +69,7 @@
     },
     "CVNA": {
       "price": 67.83999633789062,
-      "atr_pct": 0.0591,
+      "atr_pct": 0.0592,
       "rsi": 43.2,
       "breakout": false,
       "signal": "no_signal"
@@ -1234,7 +1234,11 @@
     {
       "date": "2026-11-25",
       "equity": 183.43
+    },
+    {
+      "date": "2026-11-26",
+      "equity": 183.43
     }
   ],
-  "last_run": "2026-11-25T22:41:36.003565Z"
+  "last_run": "2026-11-26T22:32:06.271592Z"
 }
